@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Trainingstagebuch</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --card-bg: #1e1e1e;
+      --accent: #4caf50;
+      --text: #ffffff;
+      --text-dim: #aaaaaa;
+      --border: #333333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 32px; max-width: 480px; margin: 0 auto; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    h1 { font-size: 1.4rem; }
+    .btn-icon { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); }
+
+    /* Grid Hauptansicht */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .tile { background: var(--card-bg); border-radius: 16px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; cursor: pointer; }
+    .tile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .tile-title { font-weight: bold; font-size: 1.1rem; }
+    .tile-icon { font-size: 1.5rem; }
+    .tile-stats { font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; }
+
+    /* Jahreswerte Kachel */
+    .full-width { grid-column: span 2; }
+
+    /* Modal / Formularansichten */
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); padding: 20px; z-index: 100; overflow-y: auto; }
+    .modal.active { display: block; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    
+    label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; margin-top: 14px; }
+    input[type="date"], input[type="number"], input[type="text"] { width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 1.1rem; }
+    
+    /* Schnellauswahl Buttons */
+    .quick-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-quick { flex: 1; background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; text-align: center; cursor: pointer; }
+    .btn-quick:active { background: var(--accent); }
+
+    /* Smiley Rating */
+    .smiley-grid { display: flex; justify-content: space-between; margin-top: 8px; }
+    .smiley-btn { background: #2a2a2a; border: 2px solid transparent; border-radius: 12px; padding: 10px; font-size: 1.6rem; cursor: pointer; text-align: center; flex: 1; margin: 0 2px; }
+    .smiley-btn.selected { border-color: var(--accent); background: #333; }
+
+    /* Kraftkreis Counter */
+    .ex-row { background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
+    .ex-title { display: flex; align-items: center; gap: 8px; font-weight: bold; margin-bottom: 8px; }
+    .counter-ctrl { display: flex; gap: 6px; align-items: center; }
+    .btn-step { background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-weight: bold; }
+
+    /* Action Buttons */
+    .btn-primary { width: 100%; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 24px; cursor: pointer; }
+    .btn-secondary { background: #333; color: var(--text); border: none; padding: 14px; border-radius: 12px; font-size: 1rem; width: 100%; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Tagebuch</h1>
+    <button class="btn-icon" onclick="openModal('modal-settings')">⚙️</button>
+  </header>
+
+  <!-- Haupt-Dashboard -->
+  <div class="grid">
+    <div class="tile" onclick="openModal('modal-gehen')">
+      <div class="tile-header"><span class="tile-title">Gehen</span><span class="tile-icon">🚶</span></div>
+      <div class="tile-stats" id="stats-gehen">Heute: 0<br>Woche: 0<br>Monat: 0</div>
+    </div>
+    <div class="tile" onclick="openModal('modal-laufen')">
+      <div class="tile-header"><span class="tile-title">Laufen</span><span class="tile-icon">🏃</span></div>
+      <div class="tile-stats" id="stats-laufen">Heute: 0 km<br>Woche: 0 km<br>Monat: 0 km</div>
+    </div>
+    <div class="tile" onclick="openModal('modal-schwimmen')">
+      <div class="tile-header"><span class="tile-title">Schwimmen</span><span class="tile-icon">🏊</span></div>
+      <div class="tile-stats" id="stats-schwimmen">Heute: 0 m<br>Woche: 0 m<br>Monat: 0 m</div>
+    </div>
+    <div class="tile" onclick="openModal('modal-sauna')">
+      <div class="tile-header"><span class="tile-title">Sauna</span><span class="tile-icon">🧖</span></div>
+      <div class="tile-stats" id="stats-sauna">Heute: 0 Gänge<br>Woche: 0 Gänge<br>Monat: 0 Gänge</div>
+    </div>
+    <div class="tile full-width" onclick="openModal('modal-kraft')">
+      <div class="tile-header"><span class="tile-title">Kraftkreis</span><span class="tile-icon">💪</span></div>
+      <div class="tile-stats" id="stats-kraft">Heute: -<br>Woche: 0 Sätze<br>Monat: 0 Sätze</div>
+    </div>
+    <div class="tile full-width" onclick="openModal('modal-historie')">
+      <div class="tile-header"><span class="tile-title">Jahreswerte & Historie</span><span class="tile-icon">📊</span></div>
+      <div class="tile-stats" id="stats-jahreswerte">Gesamtübersicht des laufenden Jahres</div>
+    </div>
+  </div>
+
+  <!-- MODAL GEHEN -->
+  <div id="modal-gehen" class="modal">
+    <div class="modal-header"><h2>🚶 Gehen</h2><button class="btn-icon" onclick="closeModal('modal-gehen')">✕</button></div>
+    <label>Datum</label>
+    <input type="date" id="g-datum">
+    <label>Schritte</label>
+    <input type="number" id="g-schritte" value="0">
+    <div class="quick-btns">
+      <button class="btn-quick" onclick="addVal('g-schritte', 300)">+300</button>
+      <button class="btn-quick" onclick="addVal('g-schritte', 500)">+500</button>
+      <button class="btn-quick" onclick="addVal('g-schritte', 1000)">+1000</button>
+    </div>
+    <button class="btn-primary" onclick="saveEntry('gehen')">Speichern</button>
+  </div>
+
+  <!-- MODAL LAUFEN -->
+  <div id="modal-laufen" class="modal">
+    <div class="modal-header"><h2>🏃 Laufen</h2><button class="btn-icon" onclick="closeModal('modal-laufen')">✕</button></div>
+    <label>Datum</label>
+    <input type="date" id="l-datum">
+    <label>Distanz (km)</label>
+    <input type="number" step="0.1" id="l-distanz" placeholder="z. B. 5.5">
+    <label>Zeit (mm:ss oder hh:mm)</label>
+    <input type="text" id="l-zeit" placeholder="30:00">
+    <label>Wie war's?</label>
+    <div class="smiley-grid">
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Easy-Peasy')">🟢<br><small style="font-size:0.6rem">Easy</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Locker')">🙂<br><small style="font-size:0.6rem">Locker</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Solide')">🏃<br><small style="font-size:0.6rem">Solide</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Anstrengend')">🔥<br><small style="font-size:0.6rem">Hart</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Ausgepowert')">💀<br><small style="font-size:0.6rem">K.O.</small></button>
+    </div>
+    <button class="btn-primary" onclick="saveEntry('laufen')">Speichern</button>
+  </div>
+
+  <!-- MODAL SCHWIMMEN -->
+  <div id="modal-schwimmen" class="modal">
+    <div class="modal-header"><h2>🏊 Schwimmen</h2><button class="btn-icon" onclick="closeModal('modal-schwimmen')">✕</button></div>
+    <label>Datum</label>
+    <input type="date" id="s-datum">
+    <label>Distanz (Meter)</label>
+    <input type="number" id="s-distanz" value="0" onchange="calcSwimPace()">
+    <div class="quick-btns">
+      <button class="btn-quick" onclick="addSwimDist(100)">+100m</button>
+      <button class="btn-quick" onclick="addSwimDist(250)">+250m</button>
+      <button class="btn-quick" onclick="addSwimDist(500)">+500m</button>
+      <button class="btn-quick" onclick="addSwimDist(1000)">+1000m</button>
+    </div>
+    <label>Zeit (Minuten:Sekunden)</label>
+    <input type="text" id="s-zeit" value="00:00">
+    <div class="quick-btns" style="margin-top: 6px;">
+      <button class="btn-quick" onclick="adjSwimTime(-60)">-1 Min</button>
+      <button class="btn-quick" onclick="adjSwimTime(-10)">-10 Sek</button>
+      <button class="btn-quick" onclick="adjSwimTime(10)">+10 Sek</button>
+      <button class="btn-quick" onclick="adjSwimTime(60)">+1 Min</button>
+    </div>
+    <button class="btn-primary" onclick="saveEntry('schwimmen')">Speichern</button>
+  </div>
+
+  <!-- MODAL SAUNA -->
+  <div id="modal-sauna" class="modal">
+    <div class="modal-header"><h2>🧖 Sauna</h2><button class="btn-icon" onclick="closeModal('modal-sauna')">✕</button></div>
+    <label>Datum</label>
+    <input type="date" id="sa-datum">
+    <label>Anzahl Gänge wählen</label>
+    <div class="quick-btns" style="flex-direction: column; gap: 10px; margin-top: 10px;">
+      <button class="btn-quick" style="padding: 16px;" onclick="saveSauna(1)">1-Gang</button>
+      <button class="btn-quick" style="padding: 16px;" onclick="saveSauna(2)">2-Gänge</button>
+      <button class="btn-quick" style="padding: 16px;" onclick="saveSauna(3)">3-Gänge</button>
+    </div>
+  </div>
+
+  <!-- MODAL KRAFTKREIS -->
+  <div id="modal-kraft" class="modal">
+    <div class="modal-header"><h2>💪 Kraftkreis</h2><button class="btn-icon" onclick="closeModal('modal-kraft')">✕</button></div>
+    <label>Datum</label>
+    <input type="date" id="k-datum">
+    
+    <div class="ex-row">
+      <div class="ex-title">🧗 Klimmzüge</div>
+      <div class="counter-ctrl">
+        <button class="btn-step" onclick="addVal('k-klimm', -10)">-10</button>
+        <button class="btn-step" onclick="addVal('k-klimm', -1)">-1</button>
+        <input type="number" id="k-klimm" value="0" style="text-align: center;">
+        <button class="btn-step" onclick="addVal('k-klimm', 1)">+1</button>
+        <button class="btn-step" onclick="addVal('k-klimm', 10)">+10</button>
+      </div>
+    </div>
+
+    <div class="ex-row">
+      <div class="ex-title">🤸 Liegestütz</div>
+      <div class="counter-ctrl">
+        <button class="btn-step" onclick="addVal('k-liege', -10)">-10</button>
+        <button class="btn-step" onclick="addVal('k-liege', -1)">-1</button>
+        <input type="number" id="k-liege" value="0" style="text-align: center;">
+        <button class="btn-step" onclick="addVal('k-liege', 1)">+1</button>
+        <button class="btn-step" onclick="addVal('k-liege', 10)">+10</button>
+      </div>
+    </div>
+
+    <div class="ex-row">
+      <div class="ex-title">🦵 Kniebeuge</div>
+      <div class="counter-ctrl">
+        <button class="btn-step" onclick="addVal('k-knie', -10)">-10</button>
+        <button class="btn-step" onclick="addVal('k-knie', -1)">-1</button>
+        <input type="number" id="k-knie" value="0" style="text-align: center;">
+        <button class="btn-step" onclick="addVal('k-knie', 1)">+1</button>
+        <button class="btn-step" onclick="addVal('k-knie', 10)">+10</button>
+      </div>
+    </div>
+
+    <div class="ex-row">
+      <div class="ex-title">⏱️ Planks (Sekunden)</div>
+      <div class="counter-ctrl">
+        <button class="btn-step" onclick="addVal('k-plank', -10)">-10</button>
+        <button class="btn-step" onclick="addVal('k-plank', -1)">-1</button>
+        <input type="number" id="k-plank" value="0" style="text-align: center;">
+        <button class="btn-step" onclick="addVal('k-plank', 1)">+1</button>
+        <button class="btn-step" onclick="addVal('k-plank', 10)">+10</button>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveEntry('kraftkreis')">Speichern</button>
+  </div>
+
+  <!-- MODAL SETTINGS & BACKUP -->
+  <div id="modal-settings" class="modal">
+    <div class="modal-header"><h2>⚙️ Einstellungen & Backup</h2><button class="btn-icon" onclick="closeModal('modal-settings')">✕</button></div>
+    <button class="btn-primary" onclick="exportData()">💾 Data Backup Export (JSON)</button>
+    <label>Backup Importieren</label>
+    <input type="file" id="import-file" accept=".json" onchange="importData(event)">
+  </div>
+
+  <!-- MODAL HISTORIE -->
+  <div id="modal-historie" class="modal">
+    <div class="modal-header"><h2>📊 Historie</h2><button class="btn-icon" onclick="closeModal('modal-historie')">✕</button></div>
+    <div id="historie-list" style="font-size:0.9rem; line-height: 1.6;"></div>
+  </div>
+
+  <script>
+    let store = JSON.parse(localStorage.getItem('tb_data')) || [];
+    let selectedSmileyVal = 'Solide';
+
+    function init() {
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll('input[type="date"]').forEach(inp => inp.value = today);
+      updateDashboard();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    function addVal(id, step) {
+      const el = document.getElementById(id);
+      el.value = Math.max(0, (parseInt(el.value) || 0) + step);
+    }
+
+    function selectSmiley(btn, val) {
+      document.querySelectorAll('.smiley-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedSmileyVal = val;
+    }
+
+    /* Schwimmzeit Automatische Vorgabe & Korrektur */
+    function addSwimDist(m) {
+      const el = document.getElementById('s-distanz');
+      el.value = (parseInt(el.value) || 0) + m;
+      calcSwimPace();
+    }
+    function calcSwimPace() {
+      const m = parseInt(document.getElementById('s-distanz').value) || 0;
+      const totalSec = Math.round((m / 100) * 110); // 1:50 pro 100m = 110s
+      setSwimTimeStr(totalSec);
+    }
+    function adjSwimTime(sec) {
+      let cur = parseSwimTimeStr(document.getElementById('s-zeit').value);
+      cur = Math.max(0, cur + sec);
+      setSwimTimeStr(cur);
+    }
+    function parseSwimTimeStr(str) {
+      const p = str.split(':');
+      return p.length === 2 ? (parseInt(p[0]) * 60) + parseInt(p[1]) : 0;
+    }
+    function setSwimTimeStr(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      document.getElementById('s-zeit').value = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function saveSauna(gaenge) {
+      const date = document.getElementById('sa-datum').value;
+      store.push({ type: 'sauna', date, gaenge });
+      finishSave('modal-sauna');
+    }
+
+    function saveEntry(type) {
+      const date = document.getElementById(`${type.substring(0,1)}-datum`).value;
+      let payload = { type, date };
+
+      if (type === 'gehen') payload.schritte = parseInt(document.getElementById('g-schritte').value) || 0;
+      if (type === 'laufen') {
+        payload.distanz = parseFloat(document.getElementById('l-distanz').value) || 0;
+        payload.zeit = document.getElementById('l-zeit').value;
+        payload.gefühl = selectedSmileyVal;
+      }
+      if (type === 'schwimmen') {
+        payload.distanz = parseInt(document.getElementById('s-distanz').value) || 0;
+        payload.zeit = document.getElementById('s-zeit').value;
+      }
+      if (type === 'kraftkreis') {
+        payload.klimm = parseInt(document.getElementById('k-klimm').value) || 0;
+        payload.liege = parseInt(document.getElementById('k-liege').value) || 0;
