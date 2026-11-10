@@ -12,13 +12,12 @@
       --text-dim: #aaaaaa;
       --border: #2a2a2a;
       
-      /* Pastell-Akzentfarben */
-      --c-gehen: #63e6be;     /* Soft Pastel Mint/Aqua */
-      --c-laufen: #ff8787;    /* Soft Pastel Koralle/Rot */
-      --c-schwimmen: #74c0fc; /* Soft Pastel Cyan/Blau */
-      --c-sauna: #ffd43b;     /* Soft Pastel Gelb/Orange */
-      --c-kraft: #b197fc;     /* Soft Pastel Violett/Lila */
-      --c-historie: #a9e9a3;  /* Soft Pastel Lindgrün */
+      --c-gehen: #63e6be;
+      --c-laufen: #ff8787;
+      --c-schwimmen: #74c0fc;
+      --c-sauna: #ffd43b;
+      --c-kraft: #b197fc;
+      --c-historie: #a9e9a3;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 32px; max-width: 480px; margin: 0 auto; }
@@ -27,7 +26,6 @@
     h1 { font-size: 1.4rem; font-weight: 700; }
     .btn-icon { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); padding: 4px; }
 
-    /* Grid & Pastell-Kacheln */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .tile { 
       background: var(--card-bg); 
@@ -52,7 +50,6 @@
       height: 4px;
     }
 
-    /* Aktivitäts-Spezifische Farben */
     .tile-gehen::before { background: var(--c-gehen); }
     .tile-gehen .tile-icon { color: var(--c-gehen); }
     
@@ -71,14 +68,13 @@
     .tile-historie::before { background: var(--c-historie); }
     .tile-historie .tile-icon { color: var(--c-historie); }
 
-    .tile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .tile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; pointer-events: none; }
     .tile-title { font-weight: bold; font-size: 1.1rem; }
     .tile-icon { font-size: 1.5rem; }
-    .tile-stats { font-size: 0.78rem; color: var(--text-dim); line-height: 1.45; }
+    .tile-stats { font-size: 0.78rem; color: var(--text-dim); line-height: 1.45; pointer-events: none; }
 
     .full-width { grid-column: span 2; }
 
-    /* Modals */
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); padding: 20px; z-index: 100; overflow-y: auto; }
     .modal.active { display: block; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -86,18 +82,15 @@
     label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; margin-top: 14px; }
     input[type="date"], input[type="number"], input[type="text"] { width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 1.1rem; }
     
-    /* Schnellauswahl Buttons */
     .quick-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
     .btn-quick { flex: 1; background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; text-align: center; cursor: pointer; }
     .btn-quick:active { background: #3c3c3c; }
 
-    /* Smiley Rating */
     .smiley-grid { display: flex; justify-content: space-between; margin-top: 8px; gap: 4px; }
     .smiley-btn { background: #2a2a2a; border: 2px solid transparent; border-radius: 12px; padding: 10px 4px; font-size: 1.5rem; cursor: pointer; text-align: center; flex: 1; }
     .smiley-btn small { font-size: 0.55rem; color: #cccccc; display: block; margin-top: 2px; }
     .smiley-btn.selected { border-color: var(--c-laufen); background: #333; }
 
-    /* Kraftkreis 3 Durchgänge Style */
     .ex-row { background: var(--card-bg); border-radius: 14px; padding: 12px; margin-bottom: 14px; border: 1px solid var(--border); }
     .ex-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; color: var(--c-kraft); }
     .sets-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
@@ -107,7 +100,6 @@
     .counter-ctrl-mini input { width: 45px; text-align: center; padding: 6px; font-size: 1rem; }
     .btn-step-mini { background: #333; border: 1px solid var(--border); color: var(--text); padding: 6px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    /* Action Buttons */
     .btn-primary { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 24px; cursor: pointer; }
   </style>
 </head>
@@ -118,7 +110,6 @@
     <button class="btn-icon" id="btn-settings">⚙️</button>
   </header>
 
-  <!-- Haupt-Dashboard -->
   <div class="grid">
     <div class="tile tile-gehen" data-modal="modal-gehen">
       <div class="tile-header"><span class="tile-title">Gehen</span><span class="tile-icon">🚶</span></div>
@@ -146,7 +137,7 @@
     </div>
   </div>
 
-  <!-- MODAL GEHEN -->
+  <!-- MODALS -->
   <div id="modal-gehen" class="modal">
     <div class="modal-header"><h2>🚶 Gehen</h2><button class="btn-icon close-modal" data-target="modal-gehen">✕</button></div>
     <label>Datum</label>
@@ -161,7 +152,6 @@
     <button class="btn-primary" style="background: var(--c-gehen); color: #121212;" onclick="saveEntry('gehen')">Speichern</button>
   </div>
 
-  <!-- MODAL LAUFEN -->
   <div id="modal-laufen" class="modal">
     <div class="modal-header"><h2>🏃 Laufen</h2><button class="btn-icon close-modal" data-target="modal-laufen">✕</button></div>
     <label>Datum</label>
@@ -181,7 +171,6 @@
     <button class="btn-primary" style="background: var(--c-laufen); color: #121212;" onclick="saveEntry('laufen')">Speichern</button>
   </div>
 
-  <!-- MODAL SCHWIMMEN -->
   <div id="modal-schwimmen" class="modal">
     <div class="modal-header"><h2>🏊 Schwimmen</h2><button class="btn-icon close-modal" data-target="modal-schwimmen">✕</button></div>
     <label>Datum</label>
@@ -205,7 +194,6 @@
     <button class="btn-primary" style="background: var(--c-schwimmen); color: #121212;" onclick="saveEntry('schwimmen')">Speichern</button>
   </div>
 
-  <!-- MODAL SAUNA -->
   <div id="modal-sauna" class="modal">
     <div class="modal-header"><h2>🧖 Sauna</h2><button class="btn-icon close-modal" data-target="modal-sauna">✕</button></div>
     <label>Datum</label>
@@ -218,13 +206,11 @@
     </div>
   </div>
 
-  <!-- MODAL KRAFTKREIS -->
   <div id="modal-kraft" class="modal">
     <div class="modal-header"><h2>💪 Kraftkreis (3 Durchgänge)</h2><button class="btn-icon close-modal" data-target="modal-kraft">✕</button></div>
     <label>Datum</label>
     <input type="date" id="k-datum">
 
-    <!-- Übung Klimmzüge -->
     <div class="ex-row">
       <div class="ex-title">🧗 Klimmzüge</div>
       <div class="sets-grid">
@@ -238,7 +224,6 @@
       </div>
     </div>
 
-    <!-- Übung Liegestütz -->
     <div class="ex-row">
       <div class="ex-title">🤸 Liegestütz</div>
       <div class="sets-grid">
@@ -252,7 +237,6 @@
       </div>
     </div>
 
-    <!-- Übung Kniebeuge -->
     <div class="ex-row">
       <div class="ex-title">🦵 Kniebeuge</div>
       <div class="sets-grid">
@@ -266,7 +250,6 @@
       </div>
     </div>
 
-    <!-- Übung Planks -->
     <div class="ex-row">
       <div class="ex-title">⏱️ Planks (Sekunden)</div>
       <div class="sets-grid">
@@ -283,8 +266,261 @@
     <button class="btn-primary" style="background: var(--c-kraft); color: #121212;" onclick="saveEntry('kraftkreis')">Speichern</button>
   </div>
 
-  <!-- MODAL SETTINGS & BACKUP -->
   <div id="modal-settings" class="modal">
     <div class="modal-header"><h2>⚙️ Backup</h2><button class="btn-icon close-modal" data-target="modal-settings">✕</button></div>
     <button class="btn-primary" style="background: var(--c-historie); color: #121212;" onclick="exportData()">💾 JSON Backup Exportieren</button>
-    <label style="margin-top: 24px;">Backup
+    <label style="margin-top: 24px;">Backup Importieren</label>
+    <input type="file" id="import-file" accept=".json" onchange="importData(event)">
+  </div>
+
+  <div id="modal-historie" class="modal">
+    <div class="modal-header"><h2>📊 Historie</h2><button class="btn-icon close-modal" data-target="modal-historie">✕</button></div>
+    <div id="historie-list" style="font-size:0.9rem; line-height: 1.6;"></div>
+  </div>
+
+  <script>
+    let store = JSON.parse(localStorage.getItem('tb_data')) || [];
+    let selectedSmileyVal = 'Solide';
+
+    // Garantiert, dass das Script erst ausgeführt wird, wenn der DOM vollständig bereit ist
+    document.addEventListener("DOMContentLoaded", function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll('input[type="date"]').forEach(inp => {
+        if (!inp.value) inp.value = today;
+      });
+      updateDashboard();
+
+      // Kacheln klickbar machen
+      document.querySelectorAll('.tile').forEach(tile => {
+        tile.addEventListener('click', function(e) {
+          e.preventDefault();
+          const modalId = this.getAttribute('data-modal');
+          if (modalId) openModal(modalId);
+        });
+      });
+
+      // Settings Button oben rechts
+      const settingsBtn = document.getElementById('btn-settings');
+      if(settingsBtn) {
+        settingsBtn.addEventListener('click', function() {
+          openModal('modal-settings');
+        });
+      }
+
+      // X-Schließen Buttons in Modals
+      document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const target = this.getAttribute('data-target');
+          closeModal(target);
+        });
+      });
+    });
+
+    function openModal(id) {
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll(`#${id} input[type="date"]`).forEach(inp => inp.value = today);
+      const modal = document.getElementById(id);
+      if(modal) modal.classList.add('active');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if(modal) modal.classList.remove('active');
+    }
+
+    function addVal(id, step) {
+      const el = document.getElementById(id);
+      if(el) el.value = Math.max(0, (parseInt(el.value) || 0) + step);
+    }
+
+    function setAllSets(prefix, val) {
+      ['1', '2', '3'].forEach(i => {
+        const el = document.getElementById(`${prefix}-${i}`);
+        if(el) el.value = val;
+      });
+    }
+
+    function selectSmiley(btn, val) {
+      document.querySelectorAll('.smiley-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedSmileyVal = val;
+    }
+
+    function addSwimDist(m) {
+      const el = document.getElementById('s-distanz');
+      if(el) {
+        el.value = (parseInt(el.value) || 0) + m;
+        calcSwimPace();
+      }
+    }
+
+    function calcSwimPace() {
+      const el = document.getElementById('s-distanz');
+      if(!el) return;
+      const m = parseInt(el.value) || 0;
+      const totalSec = Math.round((m / 100) * 110);
+      setSwimTimeStr(totalSec);
+    }
+
+    function adjSwimTime(sec) {
+      const timeEl = document.getElementById('s-zeit');
+      if(!timeEl) return;
+      let cur = parseSwimTimeStr(timeEl.value);
+      cur = Math.max(0, cur + sec);
+      setSwimTimeStr(cur);
+    }
+
+    function parseSwimTimeStr(str) {
+      const p = (str || '0:0').split(':');
+      return p.length === 2 ? (parseInt(p[0]) * 60) + parseInt(p[1]) : 0;
+    }
+
+    function setSwimTimeStr(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      const timeEl = document.getElementById('s-zeit');
+      if(timeEl) {
+        timeEl.value = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+    }
+
+    function saveSauna(gaenge) {
+      const dateEl = document.getElementById('sa-datum');
+      const date = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
+      store.push({ type: 'sauna', date, gaenge });
+      finishSave('modal-sauna');
+    }
+
+    function saveEntry(type) {
+      const prefix = type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : 'k';
+      const dateEl = document.getElementById(`${prefix}-datum`);
+      const date = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
+      let payload = { type, date };
+
+      if (type === 'gehen') {
+        const el = document.getElementById('g-schritte');
+        payload.schritte = el ? (parseInt(el.value) || 0) : 0;
+      }
+      if (type === 'laufen') {
+        const distEl = document.getElementById('l-distanz');
+        const zeitEl = document.getElementById('l-zeit');
+        payload.distanz = distEl ? (parseFloat(distEl.value) || 0) : 0;
+        payload.zeit = zeitEl ? zeitEl.value : '';
+        payload.gefühl = selectedSmileyVal;
+      }
+      if (type === 'schwimmen') {
+        const distEl = document.getElementById('s-distanz');
+        const zeitEl = document.getElementById('s-zeit');
+        payload.distanz = distEl ? (parseInt(distEl.value) || 0) : 0;
+        payload.zeit = zeitEl ? zeitEl.value : '';
+      }
+      if (type === 'kraftkreis') {
+        payload.klimm = [1, 2, 3].map(i => { let el = document.getElementById(`k-klimm-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
+        payload.liege = [1, 2, 3].map(i => { let el = document.getElementById(`k-liege-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
+        payload.knie = [1, 2, 3].map(i => { let el = document.getElementById(`k-knie-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
+        payload.plank = [1, 2, 3].map(i => { let el = document.getElementById(`k-plank-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
+      }
+
+      store.push(payload);
+      finishSave(`modal-${type}`);
+    }
+
+    function finishSave(modalId) {
+      localStorage.setItem('tb_data', JSON.stringify(store));
+      closeModal(modalId);
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+
+      const isThisWeek = (d) => {
+        if (!d) return false;
+        const date = new Date(d);
+        const startOfWeek = new Date(now);
+        const day = now.getDay() || 7;
+        if (day !== 1) startOfWeek.setHours(-24 * (day - 1));
+        return date >= startOfWeek;
+      };
+      
+      const isThisMonth = (d) => d && d.startsWith(todayStr.substring(0, 7));
+
+      const sum = (type, field, filterFn) => store
+        .filter(e => e.type === type && filterFn(e.date))
+        .reduce((a, b) => a + (b[field] || 0), 0);
+
+      document.getElementById('stats-gehen').innerHTML = 
+        `Heute: ${sum('gehen', 'schritte', d => d === todayStr)}<br>` +
+        `Woche: ${sum('gehen', 'schritte', isThisWeek)}<br>` +
+        `Monat: ${sum('gehen', 'schritte', isThisMonth)}`;
+
+      document.getElementById('stats-laufen').innerHTML = 
+        `Heute: ${sum('laufen', 'distanz', d => d === todayStr).toFixed(1)} km<br>` +
+        `Woche: ${sum('laufen', 'distanz', isThisWeek).toFixed(1)} km<br>` +
+        `Monat: ${sum('laufen', 'distanz', isThisMonth).toFixed(1)} km`;
+
+      document.getElementById('stats-schwimmen').innerHTML = 
+        `Heute: ${sum('schwimmen', 'distanz', d => d === todayStr)} m<br>` +
+        `Woche: ${sum('schwimmen', 'distanz', isThisWeek)} m<br>` +
+        `Monat: ${sum('schwimmen', 'distanz', isThisMonth)} m`;
+
+      document.getElementById('stats-sauna').innerHTML = 
+        `Heute: ${sum('sauna', 'gaenge', d => d === todayStr)} Gänge<br>` +
+        `Woche: ${sum('sauna', 'gaenge', isThisWeek)} Gänge<br>` +
+        `Monat: ${sum('sauna', 'gaenge', isThisMonth)} Gänge`;
+
+      const kraftWoche = store.filter(e => e.type === 'kraftkreis' && isThisWeek(e.date)).length;
+      const kraftMonat = store.filter(e => e.type === 'kraftkreis' && isThisMonth(e.date)).length;
+      document.getElementById('stats-kraft').innerHTML = `Heute: Sätze erfasst<br>Woche: ${kraftWoche} Einheiten<br>Monat: ${kraftMonat} Einheiten`;
+
+      // Historie
+      const histEl = document.getElementById('historie-list');
+      if (!histEl) return;
+      if (store.length === 0) {
+        histEl.innerHTML = '<p style="color:var(--text-dim)">Noch keine Einträge vorhanden.</p>';
+      } else {
+        histEl.innerHTML = store.slice().reverse().map(e => {
+          let text = '';
+          if (e.type === 'gehen') text = `${e.schritte} Schritte`;
+          if (e.type === 'laufen') text = `${e.distanz} km in ${e.zeit} (${e.gefühl})`;
+          if (e.type === 'schwimmen') text = `${e.distanz} m in ${e.zeit}`;
+          if (e.type === 'sauna') text = `${e.gaenge} Gang/Gänge`;
+          if (e.type === 'kraftkreis') text = `Klimm: ${e.klimm.join('/')} | Liege: ${e.liege.join('/')} | Knie: ${e.knie.join('/')} | Plank: ${e.plank.join('/')}s`;
+
+          return `<div style="background:var(--card-bg); padding:12px; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+             <b>${e.date}</b> &bull; <span style="text-transform:uppercase; font-size:0.8rem; font-weight:bold; color:var(--c-kraft);">${e.type}</span><br>
+             <span style="color:var(--text-dim); font-size:0.85rem;">${text}</span>
+           </div>`;
+        }).join('');
+      }
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `trainingstagebuch_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          store = JSON.parse(evt.target.result);
+          localStorage.setItem('tb_data', JSON.stringify(store));
+          updateDashboard();
+          closeModal('modal-settings');
+          alert('Backup erfolgreich geladen!');
+        } catch (err) {
+          alert('Fehler beim Lesen der JSON-Datei.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
