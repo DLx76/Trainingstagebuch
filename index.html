@@ -48,7 +48,7 @@
       top: 0; left: 0; right: 0;
       height: 4px;
     }
-    .tile:active { transform: scale(0.98); }
+    .tile:active { transform: scale(0.98); background: #262626; }
 
     /* Aktivitäts-Spezifische Farben */
     .tile-gehen::before { background: var(--c-gehen); }
@@ -105,8 +105,7 @@
     .btn-step-mini { background: #333; border: 1px solid var(--border); color: var(--text); padding: 6px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
     /* Action Buttons */
-    .btn-primary { width: 100%; background: #2e7d32; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 24px; cursor: pointer; }
-    .btn-primary-kraft { background: var(--c-kraft); color: #121212; }
+    .btn-primary { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 24px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -190,4 +189,44 @@
       <button class="btn-quick" onclick="addSwimDist(100)">+100m</button>
       <button class="btn-quick" onclick="addSwimDist(250)">+250m</button>
       <button class="btn-quick" onclick="addSwimDist(500)">+500m</button>
-      <button class="btn-quick" onclick="addSwimDist(1000
+      <button class="btn-quick" onclick="addSwimDist(1000)">+1000m</button>
+    </div>
+    <label>Zeit (Minuten:Sekunden)</label>
+    <input type="text" id="s-zeit" value="00:00">
+    <div class="quick-btns" style="margin-top: 6px;">
+      <button class="btn-quick" onclick="adjSwimTime(-60)">-1 Min</button>
+      <button class="btn-quick" onclick="adjSwimTime(-10)">-10 Sek</button>
+      <button class="btn-quick" onclick="adjSwimTime(10)">+10 Sek</button>
+      <button class="btn-quick" onclick="adjSwimTime(60)">+1 Min</button>
+    </div>
+    <button class="btn-primary" style="background: var(--c-schwimmen); color: #121212;" onclick="saveEntry('schwimmen')">Speichern</button>
+  </div>
+
+  <!-- MODAL SAUNA -->
+  <div id="modal-sauna" class="modal">
+    <div class="modal-header"><h2>🧖 Sauna</h2><button class="btn-icon" onclick="closeModal('modal-sauna')">✕</button></div>
+    <label>Datum</label>
+    <input type="date" id="sa-datum">
+    <label>Anzahl Gänge wählen</label>
+    <div class="quick-btns" style="flex-direction: column; gap: 10px; margin-top: 10px;">
+      <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(1)">1-Gang</button>
+      <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(2)">2-Gänge</button>
+      <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(3)">3-Gänge</button>
+    </div>
+  </div>
+
+  <!-- MODAL KRAFTKREIS -->
+  <div id="modal-kraft" class="modal">
+    <div class="modal-header"><h2>💪 Kraftkreis (3 Durchgänge)</h2><button class="btn-icon" onclick="closeModal('modal-kraft')">✕</button></div>
+    <label>Datum</label>
+    <input type="date" id="k-datum">
+
+    <!-- Übung Klimmzüge -->
+    <div class="ex-row">
+      <div class="ex-title">🧗 Klimmzüge</div>
+      <div class="sets-grid">
+        <div class="set-box"><span>1. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-klimm-1', -1)">-</button><input type="number" id="k-klimm-1" value="0"><button class="btn-step-mini" onclick="addVal('k-klimm-1', 1)">+</button></div></div>
+        <div class="set-box"><span>2. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-klimm-2', -1)">-</button><input type="number" id="k-klimm-2" value="0"><button class="btn-step-mini" onclick="addVal('k-klimm-2', 1)">+</button></div></div>
+        <div class="set-box"><span>3. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-klimm-3', -1)">-</button><input type="number" id="k-klimm-3" value="0"><button class="btn-step-mini" onclick="addVal('k-klimm-3', 1)">+</button></div></div>
+      </div>
+      <div class="quick-btns" style="margin-top:6px;">
