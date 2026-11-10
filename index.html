@@ -12,7 +12,7 @@
       --text-dim: #aaaaaa;
       --border: #2a2a2a;
       
-      /* Pastell-Akzentfarben (Gehen & Schwimmen getauscht) */
+      /* Pastell-Akzentfarben */
       --c-gehen: #63e6be;     /* Soft Pastel Mint/Aqua */
       --c-laufen: #ff8787;    /* Soft Pastel Koralle/Rot */
       --c-schwimmen: #74c0fc; /* Soft Pastel Cyan/Blau */
@@ -42,7 +42,6 @@
       position: relative;
       overflow: hidden;
     }
-    /* Verhindert, dass interne Elemente Klicks abfangen */
     .tile * { pointer-events: none; }
     
     .tile::before {
@@ -83,7 +82,6 @@
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); padding: 20px; z-index: 100; overflow-y: auto; }
     .modal.active { display: block; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    /* Erlaubt Interaktion in Modals wieder uneingeschränkt */
     .modal * { pointer-events: auto; }
     
     label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; margin-top: 14px; }
@@ -94,9 +92,10 @@
     .btn-quick { flex: 1; background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; text-align: center; cursor: pointer; }
     .btn-quick:active { background: #3c3c3c; }
 
-    /* Smiley Rating */
-    .smiley-grid { display: flex; justify-content: space-between; margin-top: 8px; }
-    .smiley-btn { background: #2a2a2a; border: 2px solid transparent; border-radius: 12px; padding: 10px; font-size: 1.6rem; cursor: pointer; text-align: center; flex: 1; margin: 0 2px; }
+    /* Smiley Rating (Helles Grau für Beschriftung korrigiert) */
+    .smiley-grid { display: flex; justify-content: space-between; margin-top: 8px; gap: 4px; }
+    .smiley-btn { background: #2a2a2a; border: 2px solid transparent; border-radius: 12px; padding: 10px 4px; font-size: 1.5rem; cursor: pointer; text-align: center; flex: 1; }
+    .smiley-btn small { font-size: 0.55rem; color: #cccccc; display: block; margin-top: 2px; }
     .smiley-btn.selected { border-color: var(--c-laufen); background: #333; }
 
     /* Kraftkreis 3 Durchgänge Style */
@@ -174,11 +173,11 @@
     <input type="text" id="l-zeit" placeholder="30:00">
     <label>Wie war's?</label>
     <div class="smiley-grid">
-      <button class="smiley-btn selected" onclick="selectSmiley(this, 'Solide')">🏃<br><small style="font-size:0.6rem">Solide</small></button>
-      <button class="smiley-btn" onclick="selectSmiley(this, 'Easy-Peasy')">🟢<br><small style="font-size:0.6rem">Easy</small></button>
-      <button class="smiley-btn" onclick="selectSmiley(this, 'Locker')">🙂<br><small style="font-size:0.6rem">Locker</small></button>
-      <button class="smiley-btn" onclick="selectSmiley(this, 'Anstrengend')">🔥<br><small style="font-size:0.6rem">Hart</small></button>
-      <button class="smiley-btn" onclick="selectSmiley(this, 'Ausgepowert')">💀<br><small style="font-size:0.6rem">K.O.</small></button>
+      <button class="smiley-btn selected" onclick="selectSmiley(this, 'Solide')">🏃<br><small>Solide</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Easy-Peasy')">🟢<br><small>Easy</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Locker')">🙂<br><small>Locker</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Anstrengend')">🔥<br><small>Hart</small></button>
+      <button class="smiley-btn" onclick="selectSmiley(this, 'Ausgepowert')">💀<br><small>K.O.</small></button>
     </div>
     <button class="btn-primary" style="background: var(--c-laufen); color: #121212;" onclick="saveEntry('laufen')">Speichern</button>
   </div>
@@ -399,102 +398,3 @@
     }
 
     function finishSave(modalId) {
-      localStorage.setItem('tb_data', JSON.stringify(store));
-      closeModal(modalId);
-      updateDashboard();
-    }
-
-    function updateDashboard() {
-      const now = new Date();
-      const todayStr = now.toISOString().split('T')[0];
-
-      const isThisWeek = (d) => {
-        if (!d) return false;
-        const date = new Date(d);
-        const startOfWeek = new Date(now);
-        const day = now.getDay() || 7;
-        if (day !== 1) startOfWeek.setHours(-24 * (day - 1));
-        return date >= startOfWeek;
-      };
-      
-      const isThisMonth = (d) => d && d.startsWith(todayStr.substring(0, 7));
-
-      const sum = (type, field, filterFn) => store
-        .filter(e => e.type === type && filterFn(e.date))
-        .reduce((a, b) => a + (b[field] || 0), 0);
-
-      document.getElementById('stats-gehen').innerHTML = 
-        `Heute: ${sum('gehen', 'schritte', d => d === todayStr)}<br>` +
-        `Woche: ${sum('gehen', 'schritte', isThisWeek)}<br>` +
-        `Monat: ${sum('gehen', 'schritte', isThisMonth)}`;
-
-      document.getElementById('stats-laufen').innerHTML = 
-        `Heute: ${sum('laufen', 'distanz', d => d === todayStr).toFixed(1)} km<br>` +
-        `Woche: ${sum('laufen', 'distanz', isThisWeek).toFixed(1)} km<br>` +
-        `Monat: ${sum('laufen', 'distanz', isThisMonth).toFixed(1)} km`;
-
-      document.getElementById('stats-schwimmen').innerHTML = 
-        `Heute: ${sum('schwimmen', 'distanz', d => d === todayStr)} m<br>` +
-        `Woche: ${sum('schwimmen', 'distanz', isThisWeek)} m<br>` +
-        `Monat: ${sum('schwimmen', 'distanz', isThisMonth)} m`;
-
-      document.getElementById('stats-sauna').innerHTML = 
-        `Heute: ${sum('sauna', 'gaenge', d => d === todayStr)} Gänge<br>` +
-        `Woche: ${sum('sauna', 'gaenge', isThisWeek)} Gänge<br>` +
-        `Monat: ${sum('sauna', 'gaenge', isThisMonth)} Gänge`;
-
-      const kraftWoche = store.filter(e => e.type === 'kraftkreis' && isThisWeek(e.date)).length;
-      const kraftMonat = store.filter(e => e.type === 'kraftkreis' && isThisMonth(e.date)).length;
-      document.getElementById('stats-kraft').innerHTML = `Heute: Sätze erfasst<br>Woche: ${kraftWoche} Einheiten<br>Monat: ${kraftMonat} Einheiten`;
-
-      // Historie
-      const histEl = document.getElementById('historie-list');
-      if (store.length === 0) {
-        histEl.innerHTML = '<p style="color:var(--text-dim)">Noch keine Einträge vorhanden.</p>';
-      } else {
-        histEl.innerHTML = store.slice().reverse().map(e => {
-          let text = '';
-          if (e.type === 'gehen') text = `${e.schritte} Schritte`;
-          if (e.type === 'laufen') text = `${e.distanz} km in ${e.zeit} (${e.gefühl})`;
-          if (e.type === 'schwimmen') text = `${e.distanz} m in ${e.zeit}`;
-          if (e.type === 'sauna') text = `${e.gaenge} Gang/Gänge`;
-          if (e.type === 'kraftkreis') text = `Klimm: ${e.klimm.join('/')} | Liege: ${e.liege.join('/')} | Knie: ${e.knie.join('/')} | Plank: ${e.plank.join('/')}s`;
-
-          return `<div style="background:var(--card-bg); padding:12px; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
-             <b>${e.date}</b> &bull; <span style="text-transform:uppercase; font-size:0.8rem; font-weight:bold; color:var(--c-kraft);">${e.type}</span><br>
-             <span style="color:var(--text-dim); font-size:0.85rem;">${text}</span>
-           </div>`;
-        }).join('');
-      }
-    }
-
-    function exportData() {
-      const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `trainingstagebuch_backup_${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-    }
-
-    function importData(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          store = JSON.parse(evt.target.result);
-          localStorage.setItem('tb_data', JSON.stringify(store));
-          updateDashboard();
-          closeModal('modal-settings');
-          alert('Backup erfolgreich geladen!');
-        } catch (err) {
-          alert('Fehler beim Lesen der JSON-Datei.');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    init();
-  </script>
-</body>
-</html>
