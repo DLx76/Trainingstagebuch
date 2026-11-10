@@ -12,10 +12,10 @@
       --text-dim: #aaaaaa;
       --border: #2a2a2a;
       
-      /* Pastell-Akzentfarben */
-      --c-gehen: #74c0fc;     /* Soft Pastel Cyan/Blau */
+      /* Pastell-Akzentfarben (Gehen & Schwimmen getauscht) */
+      --c-gehen: #63e6be;     /* Soft Pastel Mint/Aqua */
       --c-laufen: #ff8787;    /* Soft Pastel Koralle/Rot */
-      --c-schwimmen: #63e6be; /* Soft Pastel Mint/Aqua */
+      --c-schwimmen: #74c0fc; /* Soft Pastel Cyan/Blau */
       --c-sauna: #ffd43b;     /* Soft Pastel Gelb/Orange */
       --c-kraft: #b197fc;     /* Soft Pastel Violett/Lila */
       --c-historie: #a9e9a3;  /* Soft Pastel Lindgrün */
@@ -42,6 +42,9 @@
       position: relative;
       overflow: hidden;
     }
+    /* Verhindert, dass interne Elemente Klicks abfangen */
+    .tile * { pointer-events: none; }
+    
     .tile::before {
       content: '';
       position: absolute;
@@ -80,6 +83,8 @@
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); padding: 20px; z-index: 100; overflow-y: auto; }
     .modal.active { display: block; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    /* Erlaubt Interaktion in Modals wieder uneingeschränkt */
+    .modal * { pointer-events: auto; }
     
     label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; margin-top: 14px; }
     input[type="date"], input[type="number"], input[type="text"] { width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 1.1rem; }
@@ -230,3 +235,266 @@
         <div class="set-box"><span>3. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-klimm-3', -1)">-</button><input type="number" id="k-klimm-3" value="0"><button class="btn-step-mini" onclick="addVal('k-klimm-3', 1)">+</button></div></div>
       </div>
       <div class="quick-btns" style="margin-top:6px;">
+        <button class="btn-quick" onclick="setAllSets('k-klimm', 8)">Alle 8</button>
+        <button class="btn-quick" onclick="setAllSets('k-klimm', 10)">Alle 10</button>
+      </div>
+    </div>
+
+    <!-- Übung Liegestütz -->
+    <div class="ex-row">
+      <div class="ex-title">🤸 Liegestütz</div>
+      <div class="sets-grid">
+        <div class="set-box"><span>1. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-liege-1', -1)">-</button><input type="number" id="k-liege-1" value="0"><button class="btn-step-mini" onclick="addVal('k-liege-1', 1)">+</button></div></div>
+        <div class="set-box"><span>2. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-liege-2', -1)">-</button><input type="number" id="k-liege-2" value="0"><button class="btn-step-mini" onclick="addVal('k-liege-2', 1)">+</button></div></div>
+        <div class="set-box"><span>3. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-liege-3', -1)">-</button><input type="number" id="k-liege-3" value="0"><button class="btn-step-mini" onclick="addVal('k-liege-3', 1)">+</button></div></div>
+      </div>
+      <div class="quick-btns" style="margin-top:6px;">
+        <button class="btn-quick" onclick="setAllSets('k-liege', 15)">Alle 15</button>
+        <button class="btn-quick" onclick="setAllSets('k-liege', 20)">Alle 20</button>
+      </div>
+    </div>
+
+    <!-- Übung Kniebeuge -->
+    <div class="ex-row">
+      <div class="ex-title">🦵 Kniebeuge</div>
+      <div class="sets-grid">
+        <div class="set-box"><span>1. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-knie-1', -1)">-</button><input type="number" id="k-knie-1" value="0"><button class="btn-step-mini" onclick="addVal('k-knie-1', 1)">+</button></div></div>
+        <div class="set-box"><span>2. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-knie-2', -1)">-</button><input type="number" id="k-knie-2" value="0"><button class="btn-step-mini" onclick="addVal('k-knie-2', 1)">+</button></div></div>
+        <div class="set-box"><span>3. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-knie-3', -1)">-</button><input type="number" id="k-knie-3" value="0"><button class="btn-step-mini" onclick="addVal('k-knie-3', 1)">+</button></div></div>
+      </div>
+      <div class="quick-btns" style="margin-top:6px;">
+        <button class="btn-quick" onclick="setAllSets('k-knie', 15)">Alle 15</button>
+        <button class="btn-quick" onclick="setAllSets('k-knie', 20)">Alle 20</button>
+      </div>
+    </div>
+
+    <!-- Übung Planks -->
+    <div class="ex-row">
+      <div class="ex-title">⏱️ Planks (Sekunden)</div>
+      <div class="sets-grid">
+        <div class="set-box"><span>1. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-plank-1', -5)">-</button><input type="number" id="k-plank-1" value="0"><button class="btn-step-mini" onclick="addVal('k-plank-1', 5)">+</button></div></div>
+        <div class="set-box"><span>2. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-plank-2', -5)">-</button><input type="number" id="k-plank-2" value="0"><button class="btn-step-mini" onclick="addVal('k-plank-2', 5)">+</button></div></div>
+        <div class="set-box"><span>3. Satz</span><div class="counter-ctrl-mini"><button class="btn-step-mini" onclick="addVal('k-plank-3', -5)">-</button><input type="number" id="k-plank-3" value="0"><button class="btn-step-mini" onclick="addVal('k-plank-3', 5)">+</button></div></div>
+      </div>
+      <div class="quick-btns" style="margin-top:6px;">
+        <button class="btn-quick" onclick="setAllSets('k-plank', 45)">Alle 45s</button>
+        <button class="btn-quick" onclick="setAllSets('k-plank', 60)">Alle 60s</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="background: var(--c-kraft); color: #121212;" onclick="saveEntry('kraftkreis')">Speichern</button>
+  </div>
+
+  <!-- MODAL SETTINGS & BACKUP -->
+  <div id="modal-settings" class="modal">
+    <div class="modal-header"><h2>⚙️ Backup</h2><button class="btn-icon" onclick="closeModal('modal-settings')">✕</button></div>
+    <button class="btn-primary" style="background: var(--c-historie); color: #121212;" onclick="exportData()">💾 JSON Backup Exportieren</button>
+    <label style="margin-top: 24px;">Backup Importieren</label>
+    <input type="file" id="import-file" accept=".json" onchange="importData(event)">
+  </div>
+
+  <!-- MODAL HISTORIE -->
+  <div id="modal-historie" class="modal">
+    <div class="modal-header"><h2>📊 Historie</h2><button class="btn-icon" onclick="closeModal('modal-historie')">✕</button></div>
+    <div id="historie-list" style="font-size:0.9rem; line-height: 1.6;"></div>
+  </div>
+
+  <script>
+    let store = JSON.parse(localStorage.getItem('tb_data')) || [];
+    let selectedSmileyVal = 'Solide';
+
+    function init() {
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll('input[type="date"]').forEach(inp => {
+        if (!inp.value) inp.value = today;
+      });
+      updateDashboard();
+    }
+
+    function openModal(id) {
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll(`#${id} input[type="date"]`).forEach(inp => inp.value = today);
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function addVal(id, step) {
+      const el = document.getElementById(id);
+      el.value = Math.max(0, (parseInt(el.value) || 0) + step);
+    }
+
+    function setAllSets(prefix, val) {
+      document.getElementById(`${prefix}-1`).value = val;
+      document.getElementById(`${prefix}-2`).value = val;
+      document.getElementById(`${prefix}-3`).value = val;
+    }
+
+    function selectSmiley(btn, val) {
+      document.querySelectorAll('.smiley-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedSmileyVal = val;
+    }
+
+    /* Schwimmen Helfer */
+    function addSwimDist(m) {
+      const el = document.getElementById('s-distanz');
+      el.value = (parseInt(el.value) || 0) + m;
+      calcSwimPace();
+    }
+    function calcSwimPace() {
+      const m = parseInt(document.getElementById('s-distanz').value) || 0;
+      const totalSec = Math.round((m / 100) * 110);
+      setSwimTimeStr(totalSec);
+    }
+    function adjSwimTime(sec) {
+      let cur = parseSwimTimeStr(document.getElementById('s-zeit').value);
+      cur = Math.max(0, cur + sec);
+      setSwimTimeStr(cur);
+    }
+    function parseSwimTimeStr(str) {
+      const p = (str || '0:0').split(':');
+      return p.length === 2 ? (parseInt(p[0]) * 60) + parseInt(p[1]) : 0;
+    }
+    function setSwimTimeStr(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      document.getElementById('s-zeit').value = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function saveSauna(gaenge) {
+      const date = document.getElementById('sa-datum').value;
+      store.push({ type: 'sauna', date, gaenge });
+      finishSave('modal-sauna');
+    }
+
+    function saveEntry(type) {
+      const prefix = type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : 'k';
+      const date = document.getElementById(`${prefix}-datum`).value;
+      let payload = { type, date };
+
+      if (type === 'gehen') {
+        payload.schritte = parseInt(document.getElementById('g-schritte').value) || 0;
+      }
+      if (type === 'laufen') {
+        payload.distanz = parseFloat(document.getElementById('l-distanz').value) || 0;
+        payload.zeit = document.getElementById('l-zeit').value;
+        payload.gefühl = selectedSmileyVal;
+      }
+      if (type === 'schwimmen') {
+        payload.distanz = parseInt(document.getElementById('s-distanz').value) || 0;
+        payload.zeit = document.getElementById('s-zeit').value;
+      }
+      if (type === 'kraftkreis') {
+        payload.klimm = [1, 2, 3].map(i => parseInt(document.getElementById(`k-klimm-${i}`).value) || 0);
+        payload.liege = [1, 2, 3].map(i => parseInt(document.getElementById(`k-liege-${i}`).value) || 0);
+        payload.knie = [1, 2, 3].map(i => parseInt(document.getElementById(`k-knie-${i}`).value) || 0);
+        payload.plank = [1, 2, 3].map(i => parseInt(document.getElementById(`k-plank-${i}`).value) || 0);
+      }
+
+      store.push(payload);
+      finishSave(`modal-${type}`);
+    }
+
+    function finishSave(modalId) {
+      localStorage.setItem('tb_data', JSON.stringify(store));
+      closeModal(modalId);
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+
+      const isThisWeek = (d) => {
+        if (!d) return false;
+        const date = new Date(d);
+        const startOfWeek = new Date(now);
+        const day = now.getDay() || 7;
+        if (day !== 1) startOfWeek.setHours(-24 * (day - 1));
+        return date >= startOfWeek;
+      };
+      
+      const isThisMonth = (d) => d && d.startsWith(todayStr.substring(0, 7));
+
+      const sum = (type, field, filterFn) => store
+        .filter(e => e.type === type && filterFn(e.date))
+        .reduce((a, b) => a + (b[field] || 0), 0);
+
+      document.getElementById('stats-gehen').innerHTML = 
+        `Heute: ${sum('gehen', 'schritte', d => d === todayStr)}<br>` +
+        `Woche: ${sum('gehen', 'schritte', isThisWeek)}<br>` +
+        `Monat: ${sum('gehen', 'schritte', isThisMonth)}`;
+
+      document.getElementById('stats-laufen').innerHTML = 
+        `Heute: ${sum('laufen', 'distanz', d => d === todayStr).toFixed(1)} km<br>` +
+        `Woche: ${sum('laufen', 'distanz', isThisWeek).toFixed(1)} km<br>` +
+        `Monat: ${sum('laufen', 'distanz', isThisMonth).toFixed(1)} km`;
+
+      document.getElementById('stats-schwimmen').innerHTML = 
+        `Heute: ${sum('schwimmen', 'distanz', d => d === todayStr)} m<br>` +
+        `Woche: ${sum('schwimmen', 'distanz', isThisWeek)} m<br>` +
+        `Monat: ${sum('schwimmen', 'distanz', isThisMonth)} m`;
+
+      document.getElementById('stats-sauna').innerHTML = 
+        `Heute: ${sum('sauna', 'gaenge', d => d === todayStr)} Gänge<br>` +
+        `Woche: ${sum('sauna', 'gaenge', isThisWeek)} Gänge<br>` +
+        `Monat: ${sum('sauna', 'gaenge', isThisMonth)} Gänge`;
+
+      const kraftWoche = store.filter(e => e.type === 'kraftkreis' && isThisWeek(e.date)).length;
+      const kraftMonat = store.filter(e => e.type === 'kraftkreis' && isThisMonth(e.date)).length;
+      document.getElementById('stats-kraft').innerHTML = `Heute: Sätze erfasst<br>Woche: ${kraftWoche} Einheiten<br>Monat: ${kraftMonat} Einheiten`;
+
+      // Historie
+      const histEl = document.getElementById('historie-list');
+      if (store.length === 0) {
+        histEl.innerHTML = '<p style="color:var(--text-dim)">Noch keine Einträge vorhanden.</p>';
+      } else {
+        histEl.innerHTML = store.slice().reverse().map(e => {
+          let text = '';
+          if (e.type === 'gehen') text = `${e.schritte} Schritte`;
+          if (e.type === 'laufen') text = `${e.distanz} km in ${e.zeit} (${e.gefühl})`;
+          if (e.type === 'schwimmen') text = `${e.distanz} m in ${e.zeit}`;
+          if (e.type === 'sauna') text = `${e.gaenge} Gang/Gänge`;
+          if (e.type === 'kraftkreis') text = `Klimm: ${e.klimm.join('/')} | Liege: ${e.liege.join('/')} | Knie: ${e.knie.join('/')} | Plank: ${e.plank.join('/')}s`;
+
+          return `<div style="background:var(--card-bg); padding:12px; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+             <b>${e.date}</b> &bull; <span style="text-transform:uppercase; font-size:0.8rem; font-weight:bold; color:var(--c-kraft);">${e.type}</span><br>
+             <span style="color:var(--text-dim); font-size:0.85rem;">${text}</span>
+           </div>`;
+        }).join('');
+      }
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `trainingstagebuch_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          store = JSON.parse(evt.target.result);
+          localStorage.setItem('tb_data', JSON.stringify(store));
+          updateDashboard();
+          closeModal('modal-settings');
+          alert('Backup erfolgreich geladen!');
+        } catch (err) {
+          alert('Fehler beim Lesen der JSON-Datei.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    init();
+  </script>
+</body>
+</html>
