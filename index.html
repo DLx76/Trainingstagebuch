@@ -18,11 +18,12 @@
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     h1 { font-size: 1.4rem; }
-    .btn-icon { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); }
+    .btn-icon { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); padding: 4px; }
 
     /* Grid Hauptansicht */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .tile { background: var(--card-bg); border-radius: 16px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; cursor: pointer; }
+    .tile:active { background: #262626; }
     .tile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .tile-title { font-weight: bold; font-size: 1.1rem; }
     .tile-icon { font-size: 1.5rem; }
@@ -53,11 +54,10 @@
     .ex-row { background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
     .ex-title { display: flex; align-items: center; gap: 8px; font-weight: bold; margin-bottom: 8px; }
     .counter-ctrl { display: flex; gap: 6px; align-items: center; }
-    .btn-step { background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-weight: bold; }
+    .btn-step { background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
     /* Action Buttons */
     .btn-primary { width: 100%; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 24px; cursor: pointer; }
-    .btn-secondary { background: #333; color: var(--text); border: none; padding: 14px; border-radius: 12px; font-size: 1rem; width: 100%; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -121,9 +121,9 @@
     <input type="text" id="l-zeit" placeholder="30:00">
     <label>Wie war's?</label>
     <div class="smiley-grid">
+      <button class="smiley-btn selected" onclick="selectSmiley(this, 'Solide')">🏃<br><small style="font-size:0.6rem">Solide</small></button>
       <button class="smiley-btn" onclick="selectSmiley(this, 'Easy-Peasy')">🟢<br><small style="font-size:0.6rem">Easy</small></button>
       <button class="smiley-btn" onclick="selectSmiley(this, 'Locker')">🙂<br><small style="font-size:0.6rem">Locker</small></button>
-      <button class="smiley-btn" onclick="selectSmiley(this, 'Solide')">🏃<br><small style="font-size:0.6rem">Solide</small></button>
       <button class="smiley-btn" onclick="selectSmiley(this, 'Anstrengend')">🔥<br><small style="font-size:0.6rem">Hart</small></button>
       <button class="smiley-btn" onclick="selectSmiley(this, 'Ausgepowert')">💀<br><small style="font-size:0.6rem">K.O.</small></button>
     </div>
@@ -221,9 +221,9 @@
 
   <!-- MODAL SETTINGS & BACKUP -->
   <div id="modal-settings" class="modal">
-    <div class="modal-header"><h2>⚙️ Einstellungen & Backup</h2><button class="btn-icon" onclick="closeModal('modal-settings')">✕</button></div>
-    <button class="btn-primary" onclick="exportData()">💾 Data Backup Export (JSON)</button>
-    <label>Backup Importieren</label>
+    <div class="modal-header"><h2>⚙️ Backup</h2><button class="btn-icon" onclick="closeModal('modal-settings')">✕</button></div>
+    <button class="btn-primary" onclick="exportData()">💾 JSON Backup Exportieren</button>
+    <label style="margin-top: 24px;">Backup Importieren</label>
     <input type="file" id="import-file" accept=".json" onchange="importData(event)">
   </div>
 
@@ -239,12 +239,22 @@
 
     function init() {
       const today = new Date().toISOString().split('T')[0];
-      document.querySelectorAll('input[type="date"]').forEach(inp => inp.value = today);
+      document.querySelectorAll('input[type="date"]').forEach(inp => {
+        if (!inp.value) inp.value = today;
+      });
       updateDashboard();
     }
 
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function openModal(id) {
+      const today = new Date().toISOString().split('T')[0];
+      // Setze das Datum bei jedem Öffnen frisch auf heute, falls überschrieben werden soll
+      document.querySelectorAll(`#${id} input[type="date"]`).forEach(inp => inp.value = today);
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
 
     function addVal(id, step) {
       const el = document.getElementById(id);
@@ -257,7 +267,7 @@
       selectedSmileyVal = val;
     }
 
-    /* Schwimmzeit Automatische Vorgabe & Korrektur */
+    /* Schwimmen Helfer */
     function addSwimDist(m) {
       const el = document.getElementById('s-distanz');
       el.value = (parseInt(el.value) || 0) + m;
@@ -274,7 +284,7 @@
       setSwimTimeStr(cur);
     }
     function parseSwimTimeStr(str) {
-      const p = str.split(':');
+      const p = (str || '0:0').split(':');
       return p.length === 2 ? (parseInt(p[0]) * 60) + parseInt(p[1]) : 0;
     }
     function setSwimTimeStr(sec) {
@@ -290,10 +300,13 @@
     }
 
     function saveEntry(type) {
-      const date = document.getElementById(`${type.substring(0,1)}-datum`).value;
+      const prefix = type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : 'k';
+      const date = document.getElementById(`${prefix}-datum`).value;
       let payload = { type, date };
 
-      if (type === 'gehen') payload.schritte = parseInt(document.getElementById('g-schritte').value) || 0;
+      if (type === 'gehen') {
+        payload.schritte = parseInt(document.getElementById('g-schritte').value) || 0;
+      }
       if (type === 'laufen') {
         payload.distanz = parseFloat(document.getElementById('l-distanz').value) || 0;
         payload.zeit = document.getElementById('l-zeit').value;
@@ -306,3 +319,105 @@
       if (type === 'kraftkreis') {
         payload.klimm = parseInt(document.getElementById('k-klimm').value) || 0;
         payload.liege = parseInt(document.getElementById('k-liege').value) || 0;
+        payload.knie = parseInt(document.getElementById('k-knie').value) || 0;
+        payload.plank = parseInt(document.getElementById('k-plank').value) || 0;
+      }
+
+      store.push(payload);
+      finishSave(`modal-${type}`);
+    }
+
+    function finishSave(modalId) {
+      localStorage.setItem('tb_data', JSON.stringify(store));
+      closeModal(modalId);
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+
+      const isThisWeek = (d) => {
+        if (!d) return false;
+        const date = new Date(d);
+        const startOfWeek = new Date(now);
+        const day = now.getDay() || 7;
+        if (day !== 1) startOfWeek.setHours(-24 * (day - 1));
+        return date >= startOfWeek;
+      };
+      
+      const isThisMonth = (d) => d && d.startsWith(todayStr.substring(0, 7));
+
+      const sum = (type, field, filterFn) => store
+        .filter(e => e.type === type && filterFn(e.date))
+        .reduce((a, b) => a + (b[field] || 0), 0);
+
+      document.getElementById('stats-gehen').innerHTML = 
+        `Heute: ${sum('gehen', 'schritte', d => d === todayStr)}<br>` +
+        `Woche: ${sum('gehen', 'schritte', isThisWeek)}<br>` +
+        `Monat: ${sum('gehen', 'schritte', isThisMonth)}`;
+
+      document.getElementById('stats-laufen').innerHTML = 
+        `Heute: ${sum('laufen', 'distanz', d => d === todayStr).toFixed(1)} km<br>` +
+        `Woche: ${sum('laufen', 'distanz', isThisWeek).toFixed(1)} km<br>` +
+        `Monat: ${sum('laufen', 'distanz', isThisMonth).toFixed(1)} km`;
+
+      document.getElementById('stats-schwimmen').innerHTML = 
+        `Heute: ${sum('schwimmen', 'distanz', d => d === todayStr)} m<br>` +
+        `Woche: ${sum('schwimmen', 'distanz', isThisWeek)} m<br>` +
+        `Monat: ${sum('schwimmen', 'distanz', isThisMonth)} m`;
+
+      document.getElementById('stats-sauna').innerHTML = 
+        `Heute: ${sum('sauna', 'gaenge', d => d === todayStr)} Gänge<br>` +
+        `Woche: ${sum('sauna', 'gaenge', isThisWeek)} Gänge<br>` +
+        `Monat: ${sum('sauna', 'gaenge', isThisMonth)} Gänge`;
+
+      const kraftWoche = store.filter(e => e.type === 'kraftkreis' && isThisWeek(e.date)).length;
+      const kraftMonat = store.filter(e => e.type === 'kraftkreis' && isThisMonth(e.date)).length;
+      document.getElementById('stats-kraft').innerHTML = `Heute: -<br>Woche: ${kraftWoche} Einheiten<br>Monat: ${kraftMonat} Einheiten`;
+
+      // Historie
+      const histEl = document.getElementById('historie-list');
+      if (store.length === 0) {
+        histEl.innerHTML = '<p style="color:var(--text-dim)">Noch keine Einträge vorhanden.</p>';
+      } else {
+        histEl.innerHTML = store.slice().reverse().map(e => 
+          `<div style="background:var(--card-bg); padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid var(--border);">
+             <b>${e.date}</b> &bull; <span style="text-transform:uppercase; color:var(--accent);">${e.type}</span><br>
+             <small style="color:var(--text-dim);">${JSON.stringify(e).replace(/["{}]/g, '').replace(/,/g, ' | ')}</small>
+           </div>`
+        ).join('');
+      }
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `trainingstagebuch_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          store = JSON.parse(evt.target.result);
+          localStorage.setItem('tb_data', JSON.stringify(store));
+          updateDashboard();
+          closeModal('modal-settings');
+          alert('Backup erfolgreich geladen!');
+        } catch (err) {
+          alert('Fehler beim Lesen der JSON-Datei.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Start beim Laden
+    init();
+  </script>
+</body>
+</html>
