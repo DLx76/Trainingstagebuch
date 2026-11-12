@@ -52,19 +52,14 @@
 
     .tile-gehen::before { background: var(--c-gehen); }
     .tile-gehen .tile-icon { color: var(--c-gehen); }
-    
     .tile-laufen::before { background: var(--c-laufen); }
     .tile-laufen .tile-icon { color: var(--c-laufen); }
-    
     .tile-schwimmen::before { background: var(--c-schwimmen); }
     .tile-schwimmen .tile-icon { color: var(--c-schwimmen); }
-    
     .tile-sauna::before { background: var(--c-sauna); }
     .tile-sauna .tile-icon { color: var(--c-sauna); }
-    
     .tile-kraft::before { background: var(--c-kraft); }
     .tile-kraft .tile-icon { color: var(--c-kraft); }
-    
     .tile-historie::before { background: var(--c-historie); }
     .tile-historie .tile-icon { color: var(--c-historie); }
 
@@ -82,8 +77,8 @@
     label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; margin-top: 14px; }
     input[type="date"], input[type="number"], input[type="text"] { width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 1.1rem; }
     
-    .quick-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .btn-quick { flex: 1; background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; text-align: center; cursor: pointer; }
+    .quick-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-quick { flex: 1; background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 8px 4px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; text-align: center; cursor: pointer; min-width: 45px; }
     .btn-quick:active { background: #3c3c3c; }
 
     .smiley-grid { display: flex; justify-content: space-between; margin-top: 8px; gap: 4px; }
@@ -100,7 +95,17 @@
     .counter-ctrl-mini input { width: 45px; text-align: center; padding: 6px; font-size: 1rem; }
     .btn-step-mini { background: #333; border: 1px solid var(--border); color: var(--text); padding: 6px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    .btn-primary { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 24px; cursor: pointer; }
+    .btn-primary { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    .btn-secondary { background: #333; color: var(--text); border: 1px solid var(--border); padding: 10px; border-radius: 10px; font-size: 0.9rem; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
+
+    /* Jahresübersicht Dashboard im Historie Modal */
+    .year-dashboard { background: var(--card-bg); border-radius: 14px; padding: 14px; margin-bottom: 20px; border: 1px solid var(--border); }
+    .year-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 12px; color: var(--c-historie); display: flex; justify-content: space-between; align-items: center; }
+    .year-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .year-card { background: #262626; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+    .year-card-icon { font-size: 1.4rem; }
+    .year-card-info span { font-size: 0.7rem; color: var(--text-dim); display: block; }
+    .year-card-info strong { font-size: 0.95rem; }
   </style>
 </head>
 <body>
@@ -137,23 +142,29 @@
     </div>
   </div>
 
-  <!-- MODALS -->
+  <!-- MODAL GEHEN -->
   <div id="modal-gehen" class="modal">
-    <div class="modal-header"><h2>🚶 Gehen</h2><button class="btn-icon close-modal" data-target="modal-gehen">✕</button></div>
+    <div class="modal-header"><h2 id="title-gehen">🚶 Gehen</h2><button class="btn-icon close-modal" data-target="modal-gehen">✕</button></div>
+    <input type="hidden" id="edit-id-gehen" value="">
     <label>Datum</label>
     <input type="date" id="g-datum">
     <label>Schritte</label>
     <input type="number" id="g-schritte" value="0">
     <div class="quick-btns">
+      <button class="btn-quick" onclick="addVal('g-schritte', 100)">+100</button>
       <button class="btn-quick" onclick="addVal('g-schritte', 300)">+300</button>
       <button class="btn-quick" onclick="addVal('g-schritte', 500)">+500</button>
       <button class="btn-quick" onclick="addVal('g-schritte', 1000)">+1000</button>
+      <button class="btn-quick" onclick="addVal('g-schritte', 5000)">+5000</button>
     </div>
     <button class="btn-primary" style="background: var(--c-gehen); color: #121212;" onclick="saveEntry('gehen')">Speichern</button>
+    <button class="btn-secondary" onclick="clearModalFields('gehen')">Leeren</button>
   </div>
 
+  <!-- MODAL LAUFEN -->
   <div id="modal-laufen" class="modal">
-    <div class="modal-header"><h2>🏃 Laufen</h2><button class="btn-icon close-modal" data-target="modal-laufen">✕</button></div>
+    <div class="modal-header"><h2 id="title-laufen">🏃 Laufen</h2><button class="btn-icon close-modal" data-target="modal-laufen">✕</button></div>
+    <input type="hidden" id="edit-id-laufen" value="">
     <label>Datum</label>
     <input type="date" id="l-datum">
     <label>Distanz (km)</label>
@@ -169,10 +180,13 @@
       <button class="smiley-btn" onclick="selectSmiley(this, 'Ausgepowert')">💀<br><small>K.O.</small></button>
     </div>
     <button class="btn-primary" style="background: var(--c-laufen); color: #121212;" onclick="saveEntry('laufen')">Speichern</button>
+    <button class="btn-secondary" onclick="clearModalFields('laufen')">Leeren</button>
   </div>
 
+  <!-- MODAL SCHWIMMEN -->
   <div id="modal-schwimmen" class="modal">
-    <div class="modal-header"><h2>🏊 Schwimmen</h2><button class="btn-icon close-modal" data-target="modal-schwimmen">✕</button></div>
+    <div class="modal-header"><h2 id="title-schwimmen">🏊 Schwimmen</h2><button class="btn-icon close-modal" data-target="modal-schwimmen">✕</button></div>
+    <input type="hidden" id="edit-id-schwimmen" value="">
     <label>Datum</label>
     <input type="date" id="s-datum">
     <label>Distanz (Meter)</label>
@@ -192,10 +206,13 @@
       <button class="btn-quick" onclick="adjSwimTime(60)">+1 Min</button>
     </div>
     <button class="btn-primary" style="background: var(--c-schwimmen); color: #121212;" onclick="saveEntry('schwimmen')">Speichern</button>
+    <button class="btn-secondary" onclick="clearModalFields('schwimmen')">Leeren</button>
   </div>
 
+  <!-- MODAL SAUNA -->
   <div id="modal-sauna" class="modal">
-    <div class="modal-header"><h2>🧖 Sauna</h2><button class="btn-icon close-modal" data-target="modal-sauna">✕</button></div>
+    <div class="modal-header"><h2 id="title-sauna">🧖 Sauna</h2><button class="btn-icon close-modal" data-target="modal-sauna">✕</button></div>
+    <input type="hidden" id="edit-id-sauna" value="">
     <label>Datum</label>
     <input type="date" id="sa-datum">
     <label>Anzahl Gänge wählen</label>
@@ -204,10 +221,13 @@
       <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(2)">2-Gänge</button>
       <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(3)">3-Gänge</button>
     </div>
+    <button class="btn-secondary" style="margin-top: 20px;" onclick="clearModalFields('sauna')">Leeren / Abbrechen</button>
   </div>
 
+  <!-- MODAL KRAFTKREIS -->
   <div id="modal-kraft" class="modal">
-    <div class="modal-header"><h2>💪 Kraftkreis (3 Durchgänge)</h2><button class="btn-icon close-modal" data-target="modal-kraft">✕</button></div>
+    <div class="modal-header"><h2 id="title-kraft">💪 Kraftkreis (3 Durchgänge)</h2><button class="btn-icon close-modal" data-target="modal-kraft">✕</button></div>
+    <input type="hidden" id="edit-id-kraftkreis" value="">
     <label>Datum</label>
     <input type="date" id="k-datum">
 
@@ -264,6 +284,7 @@
     </div>
 
     <button class="btn-primary" style="background: var(--c-kraft); color: #121212;" onclick="saveEntry('kraftkreis')">Speichern</button>
+    <button class="btn-secondary" onclick="clearModalFields('kraftkreis')">Leeren</button>
   </div>
 
   <div id="modal-settings" class="modal">
@@ -273,8 +294,46 @@
     <input type="file" id="import-file" accept=".json" onchange="importData(event)">
   </div>
 
+  <!-- MODAL HISTORIE & JAHRESWERT-DASHBOARD -->
   <div id="modal-historie" class="modal">
-    <div class="modal-header"><h2>📊 Historie</h2><button class="btn-icon close-modal" data-target="modal-historie">✕</button></div>
+    <div class="modal-header"><h2>📊 Jahreswerte & Historie</h2><button class="btn-icon close-modal" data-target="modal-historie">✕</button></div>
+    
+    <!-- Modernes Jahresübersicht-Dashboard -->
+    <div class="year-dashboard">
+      <div class="year-title" id="year-dashboard-title">Kalenderjahr 2026</div>
+      <div class="year-grid">
+        <div class="year-card">
+          <div class="year-card-icon">🚶</div>
+          <div class="year-card-info"><span>Schritte</span><strong id="y-schritte">0</strong></div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-icon">🏃</div>
+          <div class="year-card-info"><span>Laufen</span><strong id="y-laufen">0.0 km</strong></div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-icon">🏊</div>
+          <div class="year-card-info"><span>Schwimmen</span><strong id="y-schwimmen">0.0 km</strong></div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-icon">🧖</div>
+          <div class="year-card-info"><span>Sauna Gänge</span><strong id="y-sauna">0</strong></div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-icon">🧗</div>
+          <div class="year-card-info"><span>Klimmzüge</span><strong id="y-klimm">0</strong></div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-icon">🤸</div>
+          <div class="year-card-info"><span>Liegestütz</span><strong id="y-liege">0</strong></div>
+        </div>
+      </div>
+      <div class="quick-btns" style="margin-top: 12px;">
+        <button class="btn-quick" onclick="exportJSON()">📥 Export JSON</button>
+        <button class="btn-quick" onclick="exportCSV()">📊 Export CSV</button>
+      </div>
+    </div>
+
+    <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--text-dim);">Einträge-Historie</h3>
     <div id="historie-list" style="font-size:0.9rem; line-height: 1.6;"></div>
   </div>
 
@@ -282,24 +341,20 @@
     let store = JSON.parse(localStorage.getItem('tb_data')) || [];
     let selectedSmileyVal = 'Solide';
 
-    // Garantiert, dass das Script erst ausgeführt wird, wenn der DOM vollständig bereit ist
     document.addEventListener("DOMContentLoaded", function() {
-      const today = new Date().toISOString().split('T')[0];
-      document.querySelectorAll('input[type="date"]').forEach(inp => {
-        if (!inp.value) inp.value = today;
-      });
       updateDashboard();
 
-      // Kacheln klickbar machen
       document.querySelectorAll('.tile').forEach(tile => {
         tile.addEventListener('click', function(e) {
           e.preventDefault();
           const modalId = this.getAttribute('data-modal');
-          if (modalId) openModal(modalId);
+          if (modalId) {
+            resetModalForm(modalId);
+            openModal(modalId);
+          }
         });
       });
 
-      // Settings Button oben rechts
       const settingsBtn = document.getElementById('btn-settings');
       if(settingsBtn) {
         settingsBtn.addEventListener('click', function() {
@@ -307,7 +362,6 @@
         });
       }
 
-      // X-Schließen Buttons in Modals
       document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', function() {
           const target = this.getAttribute('data-target');
@@ -316,9 +370,64 @@
       });
     });
 
-    function openModal(id) {
+    function resetModalForm(modalId) {
       const today = new Date().toISOString().split('T')[0];
-      document.querySelectorAll(`#${id} input[type="date"]`).forEach(inp => inp.value = today);
+      if (modalId === 'modal-gehen') {
+        document.getElementById('edit-id-gehen').value = '';
+        document.getElementById('title-gehen').innerText = '🚶 Gehen erfassen';
+        document.getElementById('g-datum').value = today;
+        document.getElementById('g-schritte').value = '0';
+      } else if (modalId === 'modal-laufen') {
+        document.getElementById('edit-id-laufen').value = '';
+        document.getElementById('title-laufen').innerText = '🏃 Laufen erfassen';
+        document.getElementById('l-datum').value = today;
+        document.getElementById('l-distanz').value = '';
+        document.getElementById('l-zeit').value = '';
+      } else if (modalId === 'modal-schwimmen') {
+        document.getElementById('edit-id-schwimmen').value = '';
+        document.getElementById('title-schwimmen').innerText = '🏊 Schwimmen erfassen';
+        document.getElementById('s-datum').value = today;
+        document.getElementById('s-distanz').value = '0';
+        document.getElementById('s-zeit').value = '00:00';
+      } else if (modalId === 'modal-sauna') {
+        document.getElementById('edit-id-sauna').value = '';
+        document.getElementById('title-sauna').innerText = '🧖 Sauna erfassen';
+        document.getElementById('sa-datum').value = today;
+      } else if (modalId === 'modal-kraft') {
+        document.getElementById('edit-id-kraftkreis').value = '';
+        document.getElementById('title-kraft').innerText = '💪 Kraftkreis (3 Durchgänge)';
+        document.getElementById('k-datum').value = today;
+        ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
+          [1, 2, 3].forEach(i => {
+            const el = document.getElementById(`k-${ex}-${i}`);
+            if(el) el.value = '0';
+          });
+        });
+      }
+    }
+
+    function clearModalFields(type) {
+      if (type === 'gehen') {
+        document.getElementById('g-schritte').value = '0';
+      } else if (type === 'laufen') {
+        document.getElementById('l-distanz').value = '';
+        document.getElementById('l-zeit').value = '';
+      } else if (type === 'schwimmen') {
+        document.getElementById('s-distanz').value = '0';
+        document.getElementById('s-zeit').value = '00:00';
+      } else if (type === 'sauna') {
+        closeModal('modal-sauna');
+      } else if (type === 'kraftkreis') {
+        ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
+          [1, 2, 3].forEach(i => {
+            const el = document.getElementById(`k-${ex}-${i}`);
+            if(el) el.value = '0';
+          });
+        });
+      }
+    }
+
+    function openModal(id) {
       const modal = document.getElementById(id);
       if(modal) modal.classList.add('active');
     }
@@ -363,9 +472,7 @@
     }
 
     function adjSwimTime(sec) {
-      const timeEl = document.getElementById('s-zeit');
-      if(!timeEl) return;
-      let cur = parseSwimTimeStr(timeEl.value);
+      let cur = parseSwimTimeStr(document.getElementById('s-zeit').value);
       cur = Math.max(0, cur + sec);
       setSwimTimeStr(cur);
     }
@@ -385,44 +492,110 @@
     }
 
     function saveSauna(gaenge) {
-      const dateEl = document.getElementById('sa-datum');
-      const date = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
-      store.push({ type: 'sauna', date, gaenge });
+      const editId = document.getElementById('edit-id-sauna').value;
+      const date = document.getElementById('sa-datum').value;
+      
+      if (editId !== '') {
+        const index = store.findIndex(item => item.id == editId);
+        if (index !== -1) {
+          store[index].date = date;
+          store[index].gaenge = gaenge;
+        }
+      } else {
+        store.push({ id: Date.now(), type: 'sauna', date, gaenge });
+      }
       finishSave('modal-sauna');
     }
 
     function saveEntry(type) {
       const prefix = type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : 'k';
-      const dateEl = document.getElementById(`${prefix}-datum`);
-      const date = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
-      let payload = { type, date };
+      const date = document.getElementById(`${prefix}-datum`).value;
+      const editId = document.getElementById(`edit-id-${type}`).value;
+
+      let payload = { id: editId !== '' ? parseInt(editId) : Date.now(), type, date };
 
       if (type === 'gehen') {
-        const el = document.getElementById('g-schritte');
-        payload.schritte = el ? (parseInt(el.value) || 0) : 0;
+        payload.schritte = parseInt(document.getElementById('g-schritte').value) || 0;
       }
       if (type === 'laufen') {
-        const distEl = document.getElementById('l-distanz');
-        const zeitEl = document.getElementById('l-zeit');
-        payload.distanz = distEl ? (parseFloat(distEl.value) || 0) : 0;
-        payload.zeit = zeitEl ? zeitEl.value : '';
+        payload.distanz = parseFloat(document.getElementById('l-distanz').value) || 0;
+        payload.zeit = document.getElementById('l-zeit').value;
         payload.gefühl = selectedSmileyVal;
       }
       if (type === 'schwimmen') {
-        const distEl = document.getElementById('s-distanz');
-        const zeitEl = document.getElementById('s-zeit');
-        payload.distanz = distEl ? (parseInt(distEl.value) || 0) : 0;
-        payload.zeit = zeitEl ? zeitEl.value : '';
+        payload.distanz = parseInt(document.getElementById('s-distanz').value) || 0;
+        payload.zeit = document.getElementById('s-zeit').value;
       }
       if (type === 'kraftkreis') {
-        payload.klimm = [1, 2, 3].map(i => { let el = document.getElementById(`k-klimm-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
-        payload.liege = [1, 2, 3].map(i => { let el = document.getElementById(`k-liege-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
-        payload.knie = [1, 2, 3].map(i => { let el = document.getElementById(`k-knie-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
-        payload.plank = [1, 2, 3].map(i => { let el = document.getElementById(`k-plank-${i}`); return el ? (parseInt(el.value) || 0) : 0; });
+        payload.klimm = [1, 2, 3].map(i => parseInt(document.getElementById(`k-klimm-${i}`).value) || 0);
+        payload.liege = [1, 2, 3].map(i => parseInt(document.getElementById(`k-liege-${i}`).value) || 0);
+        payload.knie = [1, 2, 3].map(i => parseInt(document.getElementById(`k-knie-${i}`).value) || 0);
+        payload.plank = [1, 2, 3].map(i => parseInt(document.getElementById(`k-plank-${i}`).value) || 0);
       }
 
-      store.push(payload);
+      if (editId !== '') {
+        const index = store.findIndex(item => item.id == editId);
+        if (index !== -1) store[index] = payload;
+      } else {
+        store.push(payload);
+      }
+
       finishSave(`modal-${type}`);
+    }
+
+    function editEntry(id) {
+      const item = store.find(e => e.id == id);
+      if(!item) return;
+
+      closeModal('modal-historie');
+
+      if (item.type === 'gehen') {
+        document.getElementById('edit-id-gehen').value = item.id;
+        document.getElementById('title-gehen').innerText = '🚶 Gehen bearbeiten';
+        document.getElementById('g-datum').value = item.date;
+        document.getElementById('g-schritte').value = item.schritte;
+        openModal('modal-gehen');
+      } else if (item.type === 'laufen') {
+        document.getElementById('edit-id-laufen').value = item.id;
+        document.getElementById('title-laufen').innerText = '🏃 Laufen bearbeiten';
+        document.getElementById('l-datum').value = item.date;
+        document.getElementById('l-distanz').value = item.distanz;
+        document.getElementById('l-zeit').value = item.zeit;
+        openModal('modal-laufen');
+      } else if (item.type === 'schwimmen') {
+        document.getElementById('edit-id-schwimmen').value = item.id;
+        document.getElementById('title-schwimmen').innerText = '🏊 Schwimmen bearbeiten';
+        document.getElementById('s-datum').value = item.date;
+        document.getElementById('s-distanz').value = item.distanz;
+        document.getElementById('s-zeit').value = item.zeit;
+        openModal('modal-schwimmen');
+      } else if (item.type === 'sauna') {
+        document.getElementById('edit-id-sauna').value = item.id;
+        document.getElementById('title-sauna').innerText = '🧖 Sauna bearbeiten';
+        document.getElementById('sa-datum').value = item.date;
+        openModal('modal-sauna');
+      } else if (item.type === 'kraftkreis') {
+        document.getElementById('edit-id-kraftkreis').value = item.id;
+        document.getElementById('title-kraft').innerText = '💪 Kraftkreis bearbeiten';
+        document.getElementById('k-datum').value = item.date;
+        ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
+          if(item[ex]) {
+            [1, 2, 3].forEach(i => {
+              const el = document.getElementById(`k-${ex}-${i}`);
+              if(el) el.value = item[ex][i-1] || 0;
+            });
+          }
+        });
+        openModal('modal-kraft');
+      }
+    }
+
+    function deleteEntry(id) {
+      if (confirm('Eintrag wirklich löschen?')) {
+        store = store.filter(e => e.id != id);
+        localStorage.setItem('tb_data', JSON.stringify(store));
+        updateDashboard();
+      }
     }
 
     function finishSave(modalId) {
@@ -434,6 +607,9 @@
     function updateDashboard() {
       const now = new Date();
       const todayStr = now.toISOString().split('T')[0];
+      const currentYear = now.getFullYear();
+
+      document.getElementById('year-dashboard-title').innerText = `Kalenderjahr ${currentYear}`;
 
       const isThisWeek = (d) => {
         if (!d) return false;
@@ -445,11 +621,13 @@
       };
       
       const isThisMonth = (d) => d && d.startsWith(todayStr.substring(0, 7));
+      const isThisYear = (d) => d && d.startsWith(currentYear.toString());
 
       const sum = (type, field, filterFn) => store
         .filter(e => e.type === type && filterFn(e.date))
         .reduce((a, b) => a + (b[field] || 0), 0);
 
+      // Dashboard Dashboard Widgets Hauptansicht
       document.getElementById('stats-gehen').innerHTML = 
         `Heute: ${sum('gehen', 'schritte', d => d === todayStr)}<br>` +
         `Woche: ${sum('gehen', 'schritte', isThisWeek)}<br>` +
@@ -474,7 +652,27 @@
       const kraftMonat = store.filter(e => e.type === 'kraftkreis' && isThisMonth(e.date)).length;
       document.getElementById('stats-kraft').innerHTML = `Heute: Sätze erfasst<br>Woche: ${kraftWoche} Einheiten<br>Monat: ${kraftMonat} Einheiten`;
 
-      // Historie
+      // Jahreswerte Berechnen für oberes Drittel im Historie-Modal
+      const yearSteps = sum('gehen', 'schritte', isThisYear);
+      const yearRunKm = sum('laufen', 'distanz', isThisYear);
+      const yearSwimM = sum('schwimmen', 'distanz', isThisYear);
+      const yearSauna = sum('sauna', 'gaenge', isThisYear);
+
+      let yearKlimm = 0;
+      let yearLiege = 0;
+      store.filter(e => e.type === 'kraftkreis' && isThisYear(e.date)).forEach(e => {
+        if(e.klimm) yearKlimm += e.klimm.reduce((a,b)=>a+b, 0);
+        if(e.liege) yearLiege += e.liege.reduce((a,b)=>a+b, 0);
+      });
+
+      document.getElementById('y-schritte').innerText = yearSteps.toLocaleString();
+      document.getElementById('y-laufen').innerText = yearRunKm.toFixed(1) + ' km';
+      document.getElementById('y-schwimmen').innerText = (yearSwimM / 1000).toFixed(2) + ' km';
+      document.getElementById('y-sauna').innerText = yearSauna;
+      document.getElementById('y-klimm').innerText = yearKlimm;
+      document.getElementById('y-liege').innerText = yearLiege;
+
+      // Historie Liste Rendern
       const histEl = document.getElementById('historie-list');
       if (!histEl) return;
       if (store.length === 0) {
@@ -488,21 +686,51 @@
           if (e.type === 'sauna') text = `${e.gaenge} Gang/Gänge`;
           if (e.type === 'kraftkreis') text = `Klimm: ${e.klimm.join('/')} | Liege: ${e.liege.join('/')} | Knie: ${e.knie.join('/')} | Plank: ${e.plank.join('/')}s`;
 
-          return `<div style="background:var(--card-bg); padding:12px; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
-             <b>${e.date}</b> &bull; <span style="text-transform:uppercase; font-size:0.8rem; font-weight:bold; color:var(--c-kraft);">${e.type}</span><br>
-             <span style="color:var(--text-dim); font-size:0.85rem;">${text}</span>
+          return `<div style="background:var(--card-bg); padding:12px; border-radius:10px; margin-bottom:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+             <div>
+               <b>${e.date}</b> &bull; <span style="text-transform:uppercase; font-size:0.8rem; font-weight:bold; color:var(--c-kraft);">${e.type}</span><br>
+               <span style="color:var(--text-dim); font-size:0.85rem;">${text}</span>
+             </div>
+             <div style="display:flex; gap:8px;">
+               <button onclick="editEntry(${e.id})" style="background:#2a2a2a; border:none; color:var(--text); padding:6px 10px; border-radius:6px; cursor:pointer;">✏️</button>
+               <button onclick="deleteEntry(${e.id})" style="background:#331a1a; border:none; color:#ff8787; padding:6px 10px; border-radius:6px; cursor:pointer;">🗑️</button>
+             </div>
            </div>`;
         }).join('');
       }
     }
 
-    function exportData() {
+    function exportJSON() {
       const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = `trainingstagebuch_backup_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
     }
+
+    function exportCSV() {
+      if (store.length === 0) {
+        alert('Keine Daten zum Exportieren vorhanden.');
+        return;
+      }
+      let csv = 'ID,Typ,Datum,Details\n';
+      store.forEach(e => {
+        let det = '';
+        if (e.type === 'gehen') det = `Schritte: ${e.schritte}`;
+        else if (e.type === 'laufen') det = `Distanz: ${e.distanz}km, Zeit: ${e.zeit}, Gefuehl: ${e.gefühl}`;
+        else if (e.type === 'schwimmen') det = `Distanz: ${e.distanz}m, Zeit: ${e.zeit}`;
+        else if (e.type === 'sauna') det = `Gaenge: ${e.gaenge}`;
+        else if (e.type === 'kraftkreis') det = `Klimm: [${e.klimm}], Liege: [${e.liege}], Knie: [${e.knie}], Plank: [${e.plank}]`;
+        csv += `${e.id},${e.type},${e.date},"${det}"\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `trainingstagebuch_export_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    }
+
+    function exportData() { exportJSON(); }
 
     function importData(e) {
       const file = e.target.files[0];
