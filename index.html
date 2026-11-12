@@ -81,6 +81,9 @@
     .btn-quick { flex: 1; background: #2a2a2a; border: 1px solid var(--border); color: var(--text); padding: 8px 4px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; text-align: center; cursor: pointer; min-width: 45px; }
     .btn-quick:active { background: #3c3c3c; }
 
+    .sauna-btn { padding: 16px; border-left: 4px solid var(--c-sauna); text-align: left; font-size: 1rem; }
+    .sauna-btn.active-sauna { background: #2e2a12; border-color: var(--c-sauna); color: var(--c-sauna); }
+
     .smiley-grid { display: flex; justify-content: space-between; margin-top: 8px; gap: 4px; }
     .smiley-btn { background: #2a2a2a; border: 2px solid transparent; border-radius: 12px; padding: 10px 4px; font-size: 1.5rem; cursor: pointer; text-align: center; flex: 1; }
     .smiley-btn small { font-size: 0.55rem; color: #cccccc; display: block; margin-top: 2px; }
@@ -216,11 +219,11 @@
     <input type="date" id="sa-datum" onchange="checkDateData('sauna')">
     <label>Anzahl Gänge wählen</label>
     <div class="quick-btns" style="flex-direction: column; gap: 10px; margin-top: 10px;">
-      <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(1)">1-Gang</button>
-      <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(2)">2-Gänge</button>
-      <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(3)">3-Gänge</button>
+      <button class="btn-quick sauna-btn" id="sauna-btn-1" onclick="saveSauna(1)">1-Gang</button>
+      <button class="btn-quick sauna-btn" id="sauna-btn-2" onclick="saveSauna(2)">2-Gänge</button>
+      <button class="btn-quick sauna-btn" id="sauna-btn-3" onclick="saveSauna(3)">3-Gänge</button>
     </div>
-    <button class="btn-secondary" style="margin-top: 20px;" onclick="clearModalFields('sauna')">Leeren / Abbrechen</button>
+    <button class="btn-secondary" style="margin-top: 20px;" onclick="clearModalFields('sauna')">Abbrechen</button>
   </div>
 
   <!-- MODAL KRAFTKREIS -->
@@ -388,20 +391,17 @@
       }
     }
 
-    // Prüft beim Ändern des Datums, ob für diesen Tag bereits ein Eintrag existiert
     function checkDateData(type) {
-      const dateEl = document.getElementById(`${type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : type === 'sauna' ? 'sa' : 'k'}-datum`);
+      const prefixMap = { gehen: 'g', laufen: 'l', schwimmen: 's', sauna: 'sa', kraftkreis: 'k' };
+      const dateEl = document.getElementById(`${prefixMap[type]}-datum`);
       if(!dateEl) return;
       const selectedDate = dateEl.value;
 
-      // Suche nach existierendem Eintrag für dieses Datum und diesen Typ
       const existing = store.find(e => e.type === type && e.date === selectedDate);
-      
       const editIdEl = document.getElementById(`edit-id-${type}`);
       const titleEl = document.getElementById(`title-${type}`);
 
       if (existing) {
-        // Lade vorhandene Daten in die Maske (Bearbeitungsmodus aktivieren)
         if(editIdEl) editIdEl.value = existing.id;
         if(titleEl) titleEl.innerText = titleEl.innerText.split(' ')[0] + ' bearbeiten';
 
@@ -420,6 +420,15 @@
         } else if (type === 'schwimmen') {
           document.getElementById('s-distanz').value = existing.distanz || 0;
           document.getElementById('s-zeit').value = existing.zeit || '00:00';
+        } else if (type === 'sauna') {
+          // Sauna: Markiere den passenden Button optisch
+          [1, 2, 3].forEach(g => {
+            const btn = document.getElementById(`sauna-btn-${g}`);
+            if(btn) {
+              if(g === existing.gaenge) btn.classList.add('active-sauna');
+              else btn.classList.remove('active-sauna');
+            }
+          });
         } else if (type === 'kraftkreis') {
           ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
             if(existing[ex]) {
@@ -431,21 +440,24 @@
           });
         }
       } else {
-        // Frischer Eintrag für dieses Datum (Leeren / Neuerfassung)
         if(editIdEl) editIdEl.value = '';
         if(titleEl) {
           const names = {gehen:'Gehen', laufen:'Laufen', schwimmen:'Schwimmen', sauna:'Sauna', kraftkreis:'Kraftkreis (3 Durchgänge)'};
           const icons = {gehen:'🚶', laufen:'🏃', schwimmen:'🏊', sauna:'🧖', kraftkreis:'💪'};
           titleEl.innerText = `${icons[type]} ${names[type]}`;
         }
-        clearModalFields(type, true); // true behält das Datum bei
+        clearModalFields(type, true);
       }
     }
 
     function clearModalFields(type, keepDate = false) {
-      const dateVal = document.getElementById(`${type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : type === 'sauna' ? 'sa' : 'k'}-datum`).value;
+      const prefixMap = { gehen: 'g', laufen: 'l', schwimmen: 's', sauna: 'sa', kraftkreis: 'k' };
+      const dateEl = document.getElementById(`${prefixMap[type]}-datum`);
+      const dateVal = dateEl ? dateEl.value : '';
       
-      document.getElementById(`edit-id-${type}`).value = '';
+      const editIdEl = document.getElementById(`edit-id-${type}`);
+      if(editIdEl) editIdEl.value = '';
+
       const titleEl = document.getElementById(`title-${type}`);
       if(titleEl) {
         const names = {gehen:'Gehen', laufen:'Laufen', schwimmen:'Schwimmen', sauna:'Sauna', kraftkreis:'Kraftkreis (3 Durchgänge)'};
@@ -462,6 +474,10 @@
         document.getElementById('s-distanz').value = '0';
         document.getElementById('s-zeit').value = '00:00';
       } else if (type === 'sauna') {
+        [1, 2, 3].forEach(g => {
+          const btn = document.getElementById(`sauna-btn-${g}`);
+          if(btn) btn.classList.remove('active-sauna');
+        });
         closeModal('modal-sauna');
       } else if (type === 'kraftkreis') {
         ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
@@ -472,8 +488,8 @@
         });
       }
 
-      if(keepDate) {
-        document.getElementById(`${type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : type === 'sauna' ? 'sa' : 'k'}-datum`).value = dateVal;
+      if(keepDate && dateEl) {
+        dateEl.value = dateVal;
       }
     }
 
@@ -542,33 +558,32 @@
     }
 
     function saveSauna(gaenge) {
-      const editId = document.getElementById('edit-id-sauna').value;
       const date = document.getElementById('sa-datum').value;
-      
+      let editId = document.getElementById('edit-id-sauna').value;
+
+      if (editId === '') {
+        const existing = store.find(e => e.type === 'sauna' && e.date === date);
+        if (existing) editId = existing.id;
+      }
+
+      let payload = { id: editId !== '' ? parseInt(editId) : Date.now(), type: 'sauna', date, gaenge };
+
       if (editId !== '') {
         const index = store.findIndex(item => item.id == editId);
-        if (index !== -1) {
-          store[index].date = date;
-          store[index].gaenge = gaenge;
-        }
+        if (index !== -1) store[index] = payload;
+        else store.push(payload);
       } else {
-        // Prüfen ob für diesen Tag schon Sauna existiert -> direkt aktualisieren statt doppelt
-        const existingIdx = store.findIndex(item => item.type === 'sauna' && item.date === date);
-        if (existingIdx !== -1) {
-          store[existingIdx].gaenge = gaenge;
-        } else {
-          store.push({ id: Date.now(), type: 'sauna', date, gaenge });
-        }
+        store.push(payload);
       }
+
       finishSave('modal-sauna');
     }
 
     function saveEntry(type) {
-      const prefix = type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : 'k';
-      const date = document.getElementById(`${prefix}-datum`).value;
+      const prefixMap = { gehen: 'g', laufen: 'l', schwimmen: 's', kraftkreis: 'k' };
+      const date = document.getElementById(`${prefixMap[type]}-datum`).value;
       let editId = document.getElementById(`edit-id-${type}`).value;
 
-      // Falls kein direkter Bearbeitungs-ID da ist, aber für das Datum schon ein Eintrag existiert -> diesen updaten!
       if (editId === '') {
         const existing = store.find(e => e.type === type && e.date === date);
         if (existing) editId = existing.id;
@@ -612,35 +627,30 @@
 
       closeModal('modal-historie');
 
+      const modalMap = { gehen: 'modal-gehen', laufen: 'modal-laufen', schwimmen: 'modal-schwimmen', sauna: 'modal-sauna', kraftkreis: 'modal-kraft' };
+      const prefixMap = { gehen: 'g', laufen: 'l', schwimmen: 's', sauna: 'sa', kraftkreis: 'k' };
+      
+      document.getElementById(`edit-id-${item.type}`).value = item.id;
+      document.getElementById(`title-${item.type}`).innerText = `${item.type.charAt(0).toUpperCase() + item.type.slice(1)} bearbeiten`;
+      document.getElementById(`${prefixMap[item.type]}-datum`).value = item.date;
+
       if (item.type === 'gehen') {
-        document.getElementById('edit-id-gehen').value = item.id;
-        document.getElementById('title-gehen').innerText = '🚶 Gehen bearbeiten';
-        document.getElementById('g-datum').value = item.date;
         document.getElementById('g-schritte').value = item.schritte;
-        openModal('modal-gehen');
       } else if (item.type === 'laufen') {
-        document.getElementById('edit-id-laufen').value = item.id;
-        document.getElementById('title-laufen').innerText = '🏃 Laufen bearbeiten';
-        document.getElementById('l-datum').value = item.date;
         document.getElementById('l-distanz').value = item.distanz;
         document.getElementById('l-zeit').value = item.zeit;
-        openModal('modal-laufen');
       } else if (item.type === 'schwimmen') {
-        document.getElementById('edit-id-schwimmen').value = item.id;
-        document.getElementById('title-schwimmen').innerText = '🏊 Schwimmen bearbeiten';
-        document.getElementById('s-datum').value = item.date;
         document.getElementById('s-distanz').value = item.distanz;
         document.getElementById('s-zeit').value = item.zeit;
-        openModal('modal-schwimmen');
       } else if (item.type === 'sauna') {
-        document.getElementById('edit-id-sauna').value = item.id;
-        document.getElementById('title-sauna').innerText = '🧖 Sauna bearbeiten';
-        document.getElementById('sa-datum').value = item.date;
-        openModal('modal-sauna');
+        [1, 2, 3].forEach(g => {
+          const btn = document.getElementById(`sauna-btn-${g}`);
+          if(btn) {
+            if(g === item.gaenge) btn.classList.add('active-sauna');
+            else btn.classList.remove('active-sauna');
+          }
+        });
       } else if (item.type === 'kraftkreis') {
-        document.getElementById('edit-id-kraftkreis').value = item.id;
-        document.getElementById('title-kraft').innerText = '💪 Kraftkreis bearbeiten';
-        document.getElementById('k-datum').value = item.date;
         ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
           if(item[ex]) {
             [1, 2, 3].forEach(i => {
@@ -649,8 +659,8 @@
             });
           }
         });
-        openModal('modal-kraft');
       }
+      openModal(modalMap[item.type]);
     }
 
     function deleteEntry(id) {
