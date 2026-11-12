@@ -98,7 +98,6 @@
     .btn-primary { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 20px; cursor: pointer; }
     .btn-secondary { background: #333; color: var(--text); border: 1px solid var(--border); padding: 10px; border-radius: 10px; font-size: 0.9rem; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
 
-    /* Jahresübersicht Dashboard im Historie Modal */
     .year-dashboard { background: var(--card-bg); border-radius: 14px; padding: 14px; margin-bottom: 20px; border: 1px solid var(--border); }
     .year-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 12px; color: var(--c-historie); display: flex; justify-content: space-between; align-items: center; }
     .year-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -147,7 +146,7 @@
     <div class="modal-header"><h2 id="title-gehen">🚶 Gehen</h2><button class="btn-icon close-modal" data-target="modal-gehen">✕</button></div>
     <input type="hidden" id="edit-id-gehen" value="">
     <label>Datum</label>
-    <input type="date" id="g-datum">
+    <input type="date" id="g-datum" onchange="checkDateData('gehen')">
     <label>Schritte</label>
     <input type="number" id="g-schritte" value="0">
     <div class="quick-btns">
@@ -166,7 +165,7 @@
     <div class="modal-header"><h2 id="title-laufen">🏃 Laufen</h2><button class="btn-icon close-modal" data-target="modal-laufen">✕</button></div>
     <input type="hidden" id="edit-id-laufen" value="">
     <label>Datum</label>
-    <input type="date" id="l-datum">
+    <input type="date" id="l-datum" onchange="checkDateData('laufen')">
     <label>Distanz (km)</label>
     <input type="number" step="0.1" id="l-distanz" placeholder="z. B. 5.5">
     <label>Zeit (mm:ss oder hh:mm)</label>
@@ -188,7 +187,7 @@
     <div class="modal-header"><h2 id="title-schwimmen">🏊 Schwimmen</h2><button class="btn-icon close-modal" data-target="modal-schwimmen">✕</button></div>
     <input type="hidden" id="edit-id-schwimmen" value="">
     <label>Datum</label>
-    <input type="date" id="s-datum">
+    <input type="date" id="s-datum" onchange="checkDateData('schwimmen')">
     <label>Distanz (Meter)</label>
     <input type="number" id="s-distanz" value="0" onchange="calcSwimPace()">
     <div class="quick-btns">
@@ -214,7 +213,7 @@
     <div class="modal-header"><h2 id="title-sauna">🧖 Sauna</h2><button class="btn-icon close-modal" data-target="modal-sauna">✕</button></div>
     <input type="hidden" id="edit-id-sauna" value="">
     <label>Datum</label>
-    <input type="date" id="sa-datum">
+    <input type="date" id="sa-datum" onchange="checkDateData('sauna')">
     <label>Anzahl Gänge wählen</label>
     <div class="quick-btns" style="flex-direction: column; gap: 10px; margin-top: 10px;">
       <button class="btn-quick" style="padding: 16px; border-left: 4px solid var(--c-sauna);" onclick="saveSauna(1)">1-Gang</button>
@@ -229,7 +228,7 @@
     <div class="modal-header"><h2 id="title-kraft">💪 Kraftkreis (3 Durchgänge)</h2><button class="btn-icon close-modal" data-target="modal-kraft">✕</button></div>
     <input type="hidden" id="edit-id-kraftkreis" value="">
     <label>Datum</label>
-    <input type="date" id="k-datum">
+    <input type="date" id="k-datum" onchange="checkDateData('kraftkreis')">
 
     <div class="ex-row">
       <div class="ex-title">🧗 Klimmzüge</div>
@@ -298,7 +297,6 @@
   <div id="modal-historie" class="modal">
     <div class="modal-header"><h2>📊 Jahreswerte & Historie</h2><button class="btn-icon close-modal" data-target="modal-historie">✕</button></div>
     
-    <!-- Modernes Jahresübersicht-Dashboard -->
     <div class="year-dashboard">
       <div class="year-title" id="year-dashboard-title">Kalenderjahr 2026</div>
       <div class="year-grid">
@@ -373,40 +371,88 @@
     function resetModalForm(modalId) {
       const today = new Date().toISOString().split('T')[0];
       if (modalId === 'modal-gehen') {
-        document.getElementById('edit-id-gehen').value = '';
-        document.getElementById('title-gehen').innerText = '🚶 Gehen erfassen';
         document.getElementById('g-datum').value = today;
-        document.getElementById('g-schritte').value = '0';
+        checkDateData('gehen');
       } else if (modalId === 'modal-laufen') {
-        document.getElementById('edit-id-laufen').value = '';
-        document.getElementById('title-laufen').innerText = '🏃 Laufen erfassen';
         document.getElementById('l-datum').value = today;
-        document.getElementById('l-distanz').value = '';
-        document.getElementById('l-zeit').value = '';
+        checkDateData('laufen');
       } else if (modalId === 'modal-schwimmen') {
-        document.getElementById('edit-id-schwimmen').value = '';
-        document.getElementById('title-schwimmen').innerText = '🏊 Schwimmen erfassen';
         document.getElementById('s-datum').value = today;
-        document.getElementById('s-distanz').value = '0';
-        document.getElementById('s-zeit').value = '00:00';
+        checkDateData('schwimmen');
       } else if (modalId === 'modal-sauna') {
-        document.getElementById('edit-id-sauna').value = '';
-        document.getElementById('title-sauna').innerText = '🧖 Sauna erfassen';
         document.getElementById('sa-datum').value = today;
+        checkDateData('sauna');
       } else if (modalId === 'modal-kraft') {
-        document.getElementById('edit-id-kraftkreis').value = '';
-        document.getElementById('title-kraft').innerText = '💪 Kraftkreis (3 Durchgänge)';
         document.getElementById('k-datum').value = today;
-        ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
-          [1, 2, 3].forEach(i => {
-            const el = document.getElementById(`k-${ex}-${i}`);
-            if(el) el.value = '0';
-          });
-        });
+        checkDateData('kraftkreis');
       }
     }
 
-    function clearModalFields(type) {
+    // Prüft beim Ändern des Datums, ob für diesen Tag bereits ein Eintrag existiert
+    function checkDateData(type) {
+      const dateEl = document.getElementById(`${type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : type === 'sauna' ? 'sa' : 'k'}-datum`);
+      if(!dateEl) return;
+      const selectedDate = dateEl.value;
+
+      // Suche nach existierendem Eintrag für dieses Datum und diesen Typ
+      const existing = store.find(e => e.type === type && e.date === selectedDate);
+      
+      const editIdEl = document.getElementById(`edit-id-${type}`);
+      const titleEl = document.getElementById(`title-${type}`);
+
+      if (existing) {
+        // Lade vorhandene Daten in die Maske (Bearbeitungsmodus aktivieren)
+        if(editIdEl) editIdEl.value = existing.id;
+        if(titleEl) titleEl.innerText = titleEl.innerText.split(' ')[0] + ' bearbeiten';
+
+        if (type === 'gehen') {
+          document.getElementById('g-schritte').value = existing.schritte || 0;
+        } else if (type === 'laufen') {
+          document.getElementById('l-distanz').value = existing.distanz || '';
+          document.getElementById('l-zeit').value = existing.zeit || '';
+          if(existing.gefühl) {
+            selectedSmileyVal = existing.gefühl;
+            document.querySelectorAll('#modal-laufen .smiley-btn').forEach(b => {
+              if(b.innerText.includes(existing.gefühl)) b.classList.add('selected');
+              else b.classList.remove('selected');
+            });
+          }
+        } else if (type === 'schwimmen') {
+          document.getElementById('s-distanz').value = existing.distanz || 0;
+          document.getElementById('s-zeit').value = existing.zeit || '00:00';
+        } else if (type === 'kraftkreis') {
+          ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
+            if(existing[ex]) {
+              [1, 2, 3].forEach(i => {
+                const el = document.getElementById(`k-${ex}-${i}`);
+                if(el) el.value = existing[ex][i-1] || 0;
+              });
+            }
+          });
+        }
+      } else {
+        // Frischer Eintrag für dieses Datum (Leeren / Neuerfassung)
+        if(editIdEl) editIdEl.value = '';
+        if(titleEl) {
+          const names = {gehen:'Gehen', laufen:'Laufen', schwimmen:'Schwimmen', sauna:'Sauna', kraftkreis:'Kraftkreis (3 Durchgänge)'};
+          const icons = {gehen:'🚶', laufen:'🏃', schwimmen:'🏊', sauna:'🧖', kraftkreis:'💪'};
+          titleEl.innerText = `${icons[type]} ${names[type]}`;
+        }
+        clearModalFields(type, true); // true behält das Datum bei
+      }
+    }
+
+    function clearModalFields(type, keepDate = false) {
+      const dateVal = document.getElementById(`${type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : type === 'sauna' ? 'sa' : 'k'}-datum`).value;
+      
+      document.getElementById(`edit-id-${type}`).value = '';
+      const titleEl = document.getElementById(`title-${type}`);
+      if(titleEl) {
+        const names = {gehen:'Gehen', laufen:'Laufen', schwimmen:'Schwimmen', sauna:'Sauna', kraftkreis:'Kraftkreis (3 Durchgänge)'};
+        const icons = {gehen:'🚶', laufen:'🏃', schwimmen:'🏊', sauna:'🧖', kraftkreis:'💪'};
+        titleEl.innerText = `${icons[type]} ${names[type]}`;
+      }
+
       if (type === 'gehen') {
         document.getElementById('g-schritte').value = '0';
       } else if (type === 'laufen') {
@@ -424,6 +470,10 @@
             if(el) el.value = '0';
           });
         });
+      }
+
+      if(keepDate) {
+        document.getElementById(`${type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : type === 'sauna' ? 'sa' : 'k'}-datum`).value = dateVal;
       }
     }
 
@@ -502,7 +552,13 @@
           store[index].gaenge = gaenge;
         }
       } else {
-        store.push({ id: Date.now(), type: 'sauna', date, gaenge });
+        // Prüfen ob für diesen Tag schon Sauna existiert -> direkt aktualisieren statt doppelt
+        const existingIdx = store.findIndex(item => item.type === 'sauna' && item.date === date);
+        if (existingIdx !== -1) {
+          store[existingIdx].gaenge = gaenge;
+        } else {
+          store.push({ id: Date.now(), type: 'sauna', date, gaenge });
+        }
       }
       finishSave('modal-sauna');
     }
@@ -510,7 +566,13 @@
     function saveEntry(type) {
       const prefix = type === 'gehen' ? 'g' : type === 'laufen' ? 'l' : type === 'schwimmen' ? 's' : 'k';
       const date = document.getElementById(`${prefix}-datum`).value;
-      const editId = document.getElementById(`edit-id-${type}`).value;
+      let editId = document.getElementById(`edit-id-${type}`).value;
+
+      // Falls kein direkter Bearbeitungs-ID da ist, aber für das Datum schon ein Eintrag existiert -> diesen updaten!
+      if (editId === '') {
+        const existing = store.find(e => e.type === type && e.date === date);
+        if (existing) editId = existing.id;
+      }
 
       let payload = { id: editId !== '' ? parseInt(editId) : Date.now(), type, date };
 
@@ -536,6 +598,7 @@
       if (editId !== '') {
         const index = store.findIndex(item => item.id == editId);
         if (index !== -1) store[index] = payload;
+        else store.push(payload);
       } else {
         store.push(payload);
       }
@@ -627,7 +690,6 @@
         .filter(e => e.type === type && filterFn(e.date))
         .reduce((a, b) => a + (b[field] || 0), 0);
 
-      // Dashboard Dashboard Widgets Hauptansicht
       document.getElementById('stats-gehen').innerHTML = 
         `Heute: ${sum('gehen', 'schritte', d => d === todayStr)}<br>` +
         `Woche: ${sum('gehen', 'schritte', isThisWeek)}<br>` +
@@ -652,7 +714,6 @@
       const kraftMonat = store.filter(e => e.type === 'kraftkreis' && isThisMonth(e.date)).length;
       document.getElementById('stats-kraft').innerHTML = `Heute: Sätze erfasst<br>Woche: ${kraftWoche} Einheiten<br>Monat: ${kraftMonat} Einheiten`;
 
-      // Jahreswerte Berechnen für oberes Drittel im Historie-Modal
       const yearSteps = sum('gehen', 'schritte', isThisYear);
       const yearRunKm = sum('laufen', 'distanz', isThisYear);
       const yearSwimM = sum('schwimmen', 'distanz', isThisYear);
@@ -672,7 +733,6 @@
       document.getElementById('y-klimm').innerText = yearKlimm;
       document.getElementById('y-liege').innerText = yearLiege;
 
-      // Historie Liste Rendern
       const histEl = document.getElementById('historie-list');
       if (!histEl) return;
       if (store.length === 0) {
