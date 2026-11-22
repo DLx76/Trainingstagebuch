@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#121212">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Trainingstagebuch</title>
+  <link rel="manifest" id="pwa-manifest">
   <style>
     :root {
       --bg: #121212;
@@ -25,6 +29,27 @@
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     h1 { font-size: 1.4rem; font-weight: 700; }
     .btn-icon { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); padding: 4px; }
+
+    /* PWA Banner (Installation & Update) */
+    .pwa-banner {
+      display: none;
+      background: #222629;
+      border: 1px solid var(--c-gehen);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .pwa-banner.show { display: flex; }
+    .pwa-banner.update-mode { border-color: var(--c-sauna); }
+    .pwa-banner-text { font-size: 0.85rem; line-height: 1.35; }
+    .pwa-banner-text strong { display: block; font-size: 0.95rem; margin-bottom: 2px; }
+    .pwa-banner-btns { display: flex; gap: 6px; flex-shrink: 0; }
+    .btn-pwa-yes { background: var(--c-gehen); color: #121212; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+    .update-mode .btn-pwa-yes { background: var(--c-sauna); }
+    .btn-pwa-no { background: #333; color: var(--text-dim); border: none; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; }
 
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .tile { 
@@ -108,6 +133,7 @@
     .year-card-icon { font-size: 1.4rem; }
     .year-card-info span { font-size: 0.7rem; color: var(--text-dim); display: block; }
     .year-card-info strong { font-size: 0.95rem; }
+    .version-tag { text-align: center; font-size: 0.72rem; color: #555; margin-top: 18px; }
   </style>
 </head>
 <body>
@@ -116,6 +142,30 @@
     <h1>Tagebuch</h1>
     <button class="btn-icon" id="btn-settings">⚙️</button>
   </header>
+
+  <!-- PWA Installations-Banner -->
+  <div id="install-banner" class="pwa-banner">
+    <div class="pwa-banner-text">
+      <strong>Als App installieren</strong>
+      <span>Offline nutzen & direkt vom Startbildschirm öffnen.</span>
+    </div>
+    <div class="pwa-banner-btns">
+      <button class="btn-pwa-yes" id="btn-install-now">Jetzt</button>
+      <button class="btn-pwa-no" id="btn-install-later">Später</button>
+    </div>
+  </div>
+
+  <!-- PWA Update-Banner -->
+  <div id="update-banner" class="pwa-banner update-mode">
+    <div class="pwa-banner-text">
+      <strong>Neue Version verfügbar</strong>
+      <span>Deine Trainingsdaten bleiben erhalten.</span>
+    </div>
+    <div class="pwa-banner-btns">
+      <button class="btn-pwa-yes" id="btn-update-now">Laden</button>
+      <button class="btn-pwa-no" id="btn-update-later">Später</button>
+    </div>
+  </div>
 
   <div class="grid">
     <div class="tile tile-gehen" data-modal="modal-gehen">
@@ -290,10 +340,13 @@
   </div>
 
   <div id="modal-settings" class="modal">
-    <div class="modal-header"><h2>⚙️ Backup</h2><button class="btn-icon close-modal" data-target="modal-settings">✕</button></div>
+    <div class="modal-header"><h2>⚙️ Backup & App</h2><button class="btn-icon close-modal" data-target="modal-settings">✕</button></div>
     <button class="btn-primary" style="background: var(--c-historie); color: #121212;" onclick="exportData()">💾 JSON Backup Exportieren</button>
     <label style="margin-top: 24px;">Backup Importieren</label>
     <input type="file" id="import-file" accept=".json" onchange="importData(event)">
+    <button class="btn-secondary" id="btn-manual-install" style="display:none; margin-top: 24px;" onclick="triggerInstall()">📲 App auf Startbildschirm installieren</button>
+    <button class="btn-secondary" style="margin-top: 12px;" onclick="checkForUpdatesManual()">🔄 Nach App-Update suchen</button>
+    <div class="version-tag" id="app-version-label">Version 1.1.0 • Offline-fähig</div>
   </div>
 
   <!-- MODAL HISTORIE & JAHRESWERT-DASHBOARD -->
@@ -339,11 +392,158 @@
   </div>
 
   <script>
+    // ==========================================
+    // 1. PWA MANIFEST & SERVICE WORKER SETUP
+    // ==========================================
+    const APP_VERSION = '1.1.0';
+    let deferredPrompt = null;
+    let swRegistration = null;
+    let waitingWorker = null;
+
+    // Dynamisches Manifest mit Inline-SVG-Icon für https://dlx76.github.io/Trainingstagebuch/
+    (function setupManifest() {
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <rect width="512" height="512" rx="112" fill="#121212"/>
+        <rect x="32" y="32" width="448" height="448" rx="88" fill="#1e1e1e" stroke="#63e6be" stroke-width="12"/>
+        <path d="M130 280 L210 350 L385 165" fill="none" stroke="#63e6be" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+      const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
+
+      const manifest = {
+        name: "Trainingstagebuch",
+        short_name: "Tagebuch",
+        description: "Persönliches Trainingstagebuch für Gehen, Laufen, Schwimmen, Sauna und Kraftkreis",
+        start_url: "/Trainingstagebuch/",
+        scope: "/Trainingstagebuch/",
+        display: "standalone",
+        orientation: "portrait",
+        background_color: "#121212",
+        theme_color: "#121212",
+        icons: [
+          { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+          { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+        ]
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+      document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(blob));
+    })();
+
+    // Installations-Prompt abfangen ("Jetzt" oder "Später")
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('btn-manual-install').style.display = 'block';
+
+      const dismissedUntil = parseInt(localStorage.getItem('tb_install_dismissed_until') || '0', 10);
+      if (Date.now() > dismissedUntil) {
+        document.getElementById('install-banner').classList.add('show');
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      document.getElementById('install-banner').classList.remove('show');
+      document.getElementById('btn-manual-install').style.display = 'none';
+    });
+
+    function triggerInstall() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => {
+        deferredPrompt = null;
+        document.getElementById('install-banner').classList.remove('show');
+      });
+    }
+
+    // Service Worker registrieren & auf Updates prüfen
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/Trainingstagebuch/sw.js', { scope: '/Trainingstagebuch/' })
+          .then((reg) => {
+            swRegistration = reg;
+
+            // Falls bereits ein neuer SW wartet
+            if (reg.waiting) {
+              showUpdateBanner(reg.waiting);
+            }
+
+            // Auf neu gefundene Updates lauschen
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (!newWorker) return;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  showUpdateBanner(newWorker);
+                }
+              });
+            });
+
+            // Aktiv beim Start nach neuer Version auf GitHub suchen
+            reg.update().catch(() => {});
+          })
+          .catch((err) => console.log('SW Registrierung:', err));
+
+        // Seite neu laden, sobald der neue Service Worker übernimmt (Daten im localStorage bleiben unberührt)
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+      });
+    }
+
+    function showUpdateBanner(worker) {
+      waitingWorker = worker;
+      document.getElementById('update-banner').classList.add('show');
+    }
+
+    function checkForUpdatesManual() {
+      if (!swRegistration) {
+        alert('Offline-Modus ist aktiv. App ist aktuell (v' + APP_VERSION + ').');
+        return;
+      }
+      swRegistration.update().then(() => {
+        if (swRegistration.waiting) {
+          showUpdateBanner(swRegistration.waiting);
+          closeModal('modal-settings');
+        } else {
+          alert('Du nutzt bereits die neueste Version (' + APP_VERSION + ').');
+        }
+      }).catch(() => {
+        alert('Keine Internetverbindung – Offline-Version aktiv.');
+      });
+    }
+
+    // ==========================================
+    // 2. TRAININGS-DATENBANK & UI LOGIK
+    // ==========================================
     let store = JSON.parse(localStorage.getItem('tb_data')) || [];
     let selectedSmileyVal = 'Solide';
 
     document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('app-version-label').innerText = `Version ${APP_VERSION} • Offline-fähig`;
       updateDashboard();
+
+      // Banner-Buttons verdrahten
+      document.getElementById('btn-install-now').addEventListener('click', triggerInstall);
+      document.getElementById('btn-install-later').addEventListener('click', () => {
+        // 3 Tage Ruhe, danach darf wieder gefragt werden (und im Menü jederzeit manuell möglich)
+        localStorage.setItem('tb_install_dismissed_until', String(Date.now() + 3 * 24 * 60 * 60 * 1000));
+        document.getElementById('install-banner').classList.remove('show');
+      });
+
+      document.getElementById('btn-update-now').addEventListener('click', () => {
+        if (waitingWorker) {
+          waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+          window.location.reload();
+        }
+      });
+      document.getElementById('btn-update-later').addEventListener('click', () => {
+        document.getElementById('update-banner').classList.remove('show');
+      });
 
       document.querySelectorAll('.tile').forEach(tile => {
         tile.addEventListener('click', function(e) {
@@ -421,7 +621,6 @@
           document.getElementById('s-distanz').value = existing.distanz || 0;
           document.getElementById('s-zeit').value = existing.zeit || '00:00';
         } else if (type === 'sauna') {
-          // Sauna: Markiere den passenden Button optisch
           [1, 2, 3].forEach(g => {
             const btn = document.getElementById(`sauna-btn-${g}`);
             if(btn) {
@@ -478,7 +677,7 @@
           const btn = document.getElementById(`sauna-btn-${g}`);
           if(btn) btn.classList.remove('active-sauna');
         });
-        closeModal('modal-sauna');
+        if (!keepDate) closeModal('modal-sauna');
       } else if (type === 'kraftkreis') {
         ['klimm', 'liege', 'knie', 'plank'].forEach(ex => {
           [1, 2, 3].forEach(i => {
