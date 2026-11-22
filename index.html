@@ -126,6 +126,29 @@
     .btn-primary { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 20px; cursor: pointer; }
     .btn-secondary { background: #333; color: var(--text); border: 1px solid var(--border); padding: 10px; border-radius: 10px; font-size: 0.9rem; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
 
+    /* Gleichwertige, augenfreundliche Aktionsbuttons im Einstellungs-Menü */
+    .settings-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .btn-setting-action {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid #3a3a3a;
+    }
+    .btn-setting-action:active { background: #292929; transform: scale(0.99); }
+    .btn-setting-export { border-left: 4px solid var(--c-historie); }
+    .btn-setting-import { border-left: 4px solid var(--c-gehen); }
+    .btn-setting-update { border-left: 4px solid var(--c-sauna); }
+    .btn-setting-install { border-left: 4px solid var(--c-schwimmen); }
+
     .year-dashboard { background: var(--card-bg); border-radius: 14px; padding: 14px; margin-bottom: 20px; border: 1px solid var(--border); }
     .year-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 12px; color: var(--c-historie); display: flex; justify-content: space-between; align-items: center; }
     .year-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -133,7 +156,7 @@
     .year-card-icon { font-size: 1.4rem; }
     .year-card-info span { font-size: 0.7rem; color: var(--text-dim); display: block; }
     .year-card-info strong { font-size: 0.95rem; }
-    .version-tag { text-align: center; font-size: 0.72rem; color: #555; margin-top: 18px; }
+    .version-tag { text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 22px; }
   </style>
 </head>
 <body>
@@ -341,11 +364,13 @@
 
   <div id="modal-settings" class="modal">
     <div class="modal-header"><h2>⚙️ Backup & App</h2><button class="btn-icon close-modal" data-target="modal-settings">✕</button></div>
-    <button class="btn-primary" style="background: var(--c-historie); color: #121212;" onclick="exportData()">💾 JSON Backup Exportieren</button>
-    <label style="margin-top: 24px;">Backup Importieren</label>
-    <input type="file" id="import-file" accept=".json" onchange="importData(event)">
-    <button class="btn-secondary" id="btn-manual-install" style="display:none; margin-top: 24px;" onclick="triggerInstall()">📲 App auf Startbildschirm installieren</button>
-    <button class="btn-secondary" style="margin-top: 12px;" onclick="checkForUpdatesManual()">🔄 Nach App-Update suchen</button>
+    <div class="settings-stack">
+      <button class="btn-setting-action btn-setting-export" onclick="exportData()">💾 JSON Backup exportieren</button>
+      <button class="btn-setting-action btn-setting-import" onclick="document.getElementById('import-file').click()">📂 JSON Backup importieren</button>
+      <button class="btn-setting-action btn-setting-update" onclick="checkForUpdatesManual()">🔄 Nach App-Update suchen</button>
+      <button class="btn-setting-action btn-setting-install" id="btn-manual-install" style="display:none;" onclick="triggerInstall()">📲 App auf Startbildschirm installieren</button>
+    </div>
+    <input type="file" id="import-file" accept=".json,application/json,text/plain,*/*" style="display:none;" onchange="importData(event)">
     <div class="version-tag" id="app-version-label">Version 1.1.0 • Offline-fähig</div>
   </div>
 
@@ -400,7 +425,6 @@
     let swRegistration = null;
     let waitingWorker = null;
 
-    // Dynamisches Manifest mit Inline-SVG-Icon für https://dlx76.github.io/Trainingstagebuch/
     (function setupManifest() {
       const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <rect width="512" height="512" rx="112" fill="#121212"/>
@@ -428,11 +452,10 @@
       document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(blob));
     })();
 
-    // Installations-Prompt abfangen ("Jetzt" oder "Später")
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      document.getElementById('btn-manual-install').style.display = 'block';
+      document.getElementById('btn-manual-install').style.display = 'flex';
 
       const dismissedUntil = parseInt(localStorage.getItem('tb_install_dismissed_until') || '0', 10);
       if (Date.now() > dismissedUntil) {
@@ -455,19 +478,16 @@
       });
     }
 
-    // Service Worker registrieren & auf Updates prüfen
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/Trainingstagebuch/sw.js', { scope: '/Trainingstagebuch/' })
           .then((reg) => {
             swRegistration = reg;
 
-            // Falls bereits ein neuer SW wartet
             if (reg.waiting) {
               showUpdateBanner(reg.waiting);
             }
 
-            // Auf neu gefundene Updates lauschen
             reg.addEventListener('updatefound', () => {
               const newWorker = reg.installing;
               if (!newWorker) return;
@@ -478,12 +498,10 @@
               });
             });
 
-            // Aktiv beim Start nach neuer Version auf GitHub suchen
             reg.update().catch(() => {});
           })
           .catch((err) => console.log('SW Registrierung:', err));
 
-        // Seite neu laden, sobald der neue Service Worker übernimmt (Daten im localStorage bleiben unberührt)
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
           if (!refreshing) {
@@ -526,10 +544,8 @@
       document.getElementById('app-version-label').innerText = `Version ${APP_VERSION} • Offline-fähig`;
       updateDashboard();
 
-      // Banner-Buttons verdrahten
       document.getElementById('btn-install-now').addEventListener('click', triggerInstall);
       document.getElementById('btn-install-later').addEventListener('click', () => {
-        // 3 Tage Ruhe, danach darf wieder gefragt werden (und im Menü jederzeit manuell möglich)
         localStorage.setItem('tb_install_dismissed_until', String(Date.now() + 3 * 24 * 60 * 60 * 1000));
         document.getElementById('install-banner').classList.remove('show');
       });
@@ -1007,13 +1023,17 @@
       const reader = new FileReader();
       reader.onload = function(evt) {
         try {
-          store = JSON.parse(evt.target.result);
+          const parsed = JSON.parse(evt.target.result);
+          if (!Array.isArray(parsed)) throw new Error('Kein Array');
+          store = parsed;
           localStorage.setItem('tb_data', JSON.stringify(store));
           updateDashboard();
           closeModal('modal-settings');
           alert('Backup erfolgreich geladen!');
         } catch (err) {
           alert('Fehler beim Lesen der JSON-Datei.');
+        } finally {
+          e.target.value = '';
         }
       };
       reader.readAsText(file);
