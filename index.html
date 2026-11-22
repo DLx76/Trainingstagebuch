@@ -426,11 +426,18 @@
     let waitingWorker = null;
 
     (function setupManifest() {
-      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-        <rect width="512" height="512" rx="112" fill="#121212"/>
-        <rect x="32" y="32" width="448" height="448" rx="88" fill="#1e1e1e" stroke="#63e6be" stroke-width="12"/>
-        <path d="M130 280 L210 350 L385 165" fill="none" stroke="#63e6be" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>`;
+	const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+ 	 <rect width="512" height="512" rx="112" fill="#121212"/>
+ 	 <rect x="36" y="36" width="440" height="440" rx="84" fill="#1e1e1e" stroke="#b197fc" stroke-width="12"/>
+ 	 <!-- Linke Gewichtsscheiben -->
+	  <rect x="96" y="176" width="36" height="160" rx="12" fill="#74c0fc"/>
+ 	 <rect x="142" y="146" width="42" height="220" rx="14" fill="#63e6be"/>
+ 	 <!-- Mittelstange -->
+ 	 <rect x="184" y="236" width="144" height="40" rx="10" fill="#ffffff"/>
+ 	 <!-- Rechte Gewichtsscheiben -->
+ 	 <rect x="328" y="146" width="42" height="220" rx="14" fill="#63e6be"/>
+ 	 <rect x="380" y="176" width="36" height="160" rx="12" fill="#74c0fc"/>
+	</svg>`;
       const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
 
       const manifest = {
